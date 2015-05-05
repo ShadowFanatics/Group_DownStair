@@ -87,7 +87,12 @@ public class AnimateObject {
 	public Bitmap getImg() {
 		return img[ImgIndex];
 	}
-
+	
+	public void setMatrix(Matrix input) {
+		matrix.set(input);
+		//matrix = input;
+	}
+	
 	public Matrix getMatrix() {
 		return matrix;
 	}

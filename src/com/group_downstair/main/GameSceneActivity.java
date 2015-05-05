@@ -33,6 +33,7 @@ import android.view.View;
 public class GameSceneActivity extends Activity {
 	private View myPanel;
 	private AnimateObject player;
+	private ArrayList<AnimateObject> snakes = new ArrayList<AnimateObject>();
 	private ArrayList<StairObject> stairs = new ArrayList<StairObject>();
 	private int screenWidth;
 	private int screenHeight;
@@ -43,6 +44,10 @@ public class GameSceneActivity extends Activity {
 	private Thread paintThread;
 	private final long fps = 60;
 	private boolean gameOver = false;
+	private int life = 3;
+	private int frameCount = 0;
+	private ArrayList<float[]> pastPlayerLocation = new ArrayList<float[]>();
+	private final int snakeDelayFrame = 5;
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		// 用來取得螢幕大小
@@ -57,9 +62,32 @@ public class GameSceneActivity extends Activity {
 	}
 
 	public void gameRun() {
-
+		// run all pbject physical
 		Physical.runObjects2();
 		
+		//add snake
+		float loc[] = new float[9];
+		player.getMatrix().getValues(loc);
+		pastPlayerLocation.add(loc);
+		Matrix temp = new Matrix();
+		for (int i = 0;i < snakes.size(); i++ ) {
+			int indexOfLocation = pastPlayerLocation.size() - (i+1)*snakeDelayFrame;
+			if ( pastPlayerLocation.size() > (i+1)*snakeDelayFrame ) {
+				temp.setValues(pastPlayerLocation.get(indexOfLocation));
+				snakes.get(i).setMatrix(temp);
+				snakes.get(i).move(0, 0-snakeDelayFrame*(i+1));
+				if ( i ==  snakes.size() - 1 ) {
+					pastPlayerLocation.remove(0);
+				}
+			}
+		}
+		
+		frameCount++;
+		if ( frameCount > life * 20) {
+			frameCount = 0;
+		}
+		
+		//stair put to bottom.
 		if (player.getY() > screenHeight ) {
 			//gameOver = true;
 			player.setLocation(player.getX(), 0);
@@ -101,9 +129,12 @@ public class GameSceneActivity extends Activity {
 			surfaceHolder.addCallback(this);
 			paintThread = new Thread(this);
 
-			player = new AnimateObject(res, Image.player, screenWidth / 2, 0);
+			player = new AnimateObject(res, Image.snakeHead, screenWidth / 2, 0);
 			player.setGravity(true);
 			Physical.addObject(player);
+			for (int i = 0; i < life; i++) {
+				snakes.add(new AnimateObject(res, Image.snakeBody, screenWidth / 2, 0));
+			}
 			for (int i = 0; i < 10; i++) {
 				lastStairY += lengthBetweenStair;
 				StairObject temp = new StairObject(res, Image.stair, getRandomInt(0,
@@ -121,6 +152,10 @@ public class GameSceneActivity extends Activity {
 				canvas = surfaceHolder.lockCanvas(null);
 				synchronized (surfaceHolder) {
 					canvas.drawColor(Color.BLUE);
+					for (int i = 0; i < snakes.size(); i++) {
+						canvas.drawBitmap(snakes.get(i).getImg(), snakes.get(i)
+								.getMatrix(), null);
+					}
 					canvas.drawBitmap(player.getImg(), player.getMatrix(), null);
 					for (int i = 0; i < stairs.size(); i++) {
 						canvas.drawBitmap(stairs.get(i).getImg(), stairs.get(i)
