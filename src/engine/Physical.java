@@ -9,7 +9,6 @@ public class Physical {
 	private static float gravity = (float) 0.098;
 	private static float reflect = (float) 0.7;
 	private static ArrayList<AnimateObject> objects = new ArrayList<AnimateObject>();
-
 	public static void runObjects2() {
 		for (int i = 0; i < objects.size(); i++) {
 			AnimateObject temp = objects.get(i);
@@ -109,6 +108,4 @@ public class Physical {
 		}
 		return (collideX && collideY);
 	}
-	
-	
 }

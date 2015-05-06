@@ -1,5 +1,6 @@
 package com.group_downstair.main;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Random;
 import java.util.Timer;
@@ -19,6 +20,7 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Matrix;
 import android.graphics.Paint;
+import android.hardware.SensorManager;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -31,7 +33,7 @@ import android.view.SurfaceView;
 import android.view.View;
 
 public class GameSceneActivity extends Activity {
-	private View myPanel;
+	private View myPanel = null;
 	private AnimateObject player;
 	private ArrayList<AnimateObject> snakes = new ArrayList<AnimateObject>();
 	private ArrayList<StairObject> stairs = new ArrayList<StairObject>();
@@ -48,20 +50,47 @@ public class GameSceneActivity extends Activity {
 	private int frameCount = 0;
 	private ArrayList<float[]> pastPlayerLocation = new ArrayList<float[]>();
 	private final int snakeDelayFrame = 5;
+	private boolean isPause = false;
+	private MySensor mySensor;
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		Log.e("save","created");
+		if (savedInstanceState != null) {
+	        // Restore value of members from saved state
+
+			life = savedInstanceState.getInt("STATE_LIFE");
+			Log.e("LIFE","READ");
+	        //mCurrentLevel = savedInstanceState.getInt(STATE_LEVEL);
+	    } else {
+	        // Probably initialize members with default values for a new instance
+
+	    }
 		// 用來取得螢幕大小
 		DisplayMetrics displayMetrics = new DisplayMetrics();
 		getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
 
 		screenWidth = displayMetrics.widthPixels;
 		screenHeight = displayMetrics.heightPixels;
-		myPanel = new Panel(this);
+		if ( myPanel == null ) {
+			myPanel = new Panel(this);
+		}
 		setContentView(myPanel);
-
+		
+		mySensor = new MySensor(getSystemService(SENSOR_SERVICE));
 	}
 
 	public void gameRun() {
+		player.setSpeedX(-mySensor.getForceX());
+		if (player.getY() > screenHeight ) {
+			//gameOver = true;
+			player.setLocation(player.getX(), 0);
+		}
+		if (player.getX() < 0 && player.getSpeedX() < 0) {
+			player.setSpeedX((float) (-player.getSpeedX()));
+		}
+		if (player.getX() > screenWidth - player.getWidth() && player.getSpeedX() > 0 ) {
+			player.setSpeedX((float) (-player.getSpeedX()));
+		}
 		// run all pbject physical
 		Physical.runObjects2();
 		
@@ -83,22 +112,12 @@ public class GameSceneActivity extends Activity {
 		}
 		
 		frameCount++;
-		if ( frameCount > life * 20) {
+		if ( frameCount > 60) {
 			frameCount = 0;
 		}
 		
-		//stair put to bottom.
-		if (player.getY() > screenHeight ) {
-			//gameOver = true;
-			player.setLocation(player.getX(), 0);
-		}
-		if (player.getX() < 0 ) {
-			player.setSpeedX((float) (-player.getSpeedX()));
-		}
-		if (player.getX() > screenWidth - player.getWidth() ) {
-			player.setSpeedX((float) (-player.getSpeedX()));
-		}
 		
+		//stair put to bottom.
 		float max = 0;
 		int index = -1;
 		for (int i = 0; i < stairs.size(); i++) {
@@ -119,15 +138,15 @@ public class GameSceneActivity extends Activity {
 		}
 	}
 
-	class Panel extends SurfaceView implements SurfaceHolder.Callback, Runnable {
+	class Panel extends SurfaceView implements SurfaceHolder.Callback, Runnable, Serializable {
 		private SurfaceHolder surfaceHolder;
 
 		public Panel(Context context) {
 			super(context);
+			this.setId(123);
 			res = getResources();
 			surfaceHolder = this.getHolder();
 			surfaceHolder.addCallback(this);
-			paintThread = new Thread(this);
 
 			player = new AnimateObject(res, Image.snakeHead, screenWidth / 2, 0);
 			player.setGravity(true);
@@ -171,7 +190,7 @@ public class GameSceneActivity extends Activity {
 		}
 
 		public void run() {
-			while (!gameOver) {
+			while (!isPause&&!gameOver) {
 				gameRun();
 				draw();
 				try {
@@ -184,14 +203,19 @@ public class GameSceneActivity extends Activity {
 		}
 
 		public void surfaceCreated(SurfaceHolder holder) {
+			Log.e("surfaceCreated","surfaceCreated");
+			paintThread = new Thread(this);
 			paintThread.start();
 		}
 
 		public void surfaceChanged(SurfaceHolder holder, int format, int width,
 				int height) {
+			Log.e("surfaceChanged","surfaceChanged");
 		}
 
 		public void surfaceDestroyed(SurfaceHolder holder) {
+			Log.e("surfaceDestroyed","surfaceDestroyed");
+			isPause = true;
 		}
 	}
 
@@ -207,7 +231,45 @@ public class GameSceneActivity extends Activity {
 		}
 		return false;
 	}
+		
+	@Override
+	protected void onPause() {
+		// TODO Auto-generated method stub
+		super.onPause();
+		mySensor.onPause();
+		Log.e("onPause","onPause");
+	}
+	
+	@Override
+	protected void onResume() {
+		// TODO Auto-generated method stub
+		super.onResume();
+		Log.e("onResume","onResume");
+	}
 
+	public void onSaveInstanceState(Bundle savedInstanceState) {
+	    // Save the user’s current game state
+	    // The info. in the Bundle is stored as key-value form
+	    savedInstanceState.putInt("STATE_LIFE", life);
+	    //savedInstanceState.putInt(STATE_LEVEL, mCurrentLevel);
+	    // Always call the superclass so it can save the view hierarchy state
+	    // 一定要記得呼叫父類的方法，才會正確儲存 View 的狀態資訊
+		Log.e("save","saved");
+		super.onSaveInstanceState(savedInstanceState);
+	    
+	}	
+	
+	public void onRestoreInstanceState(Bundle savedInstanceState) {
+	    // 記得一定要呼叫父類的方法
+
+	    super.onRestoreInstanceState(savedInstanceState);
+
+	    // Restore state members from saved instance
+
+	    //mCurrentScore = savedInstanceState.getInt(STATE_SCORE);
+	    //mCurrentLevel = savedInstanceState.getInt(STATE_LEVEL);
+	}
+	
 	public boolean onCreateOptionsMenu(Menu menu) {
 		// Inflate the menu; this adds items to the action bar if it is present.
 		getMenuInflater().inflate(R.menu.main, menu);
