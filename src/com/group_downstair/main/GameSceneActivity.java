@@ -7,12 +7,9 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 import data.GameData;
-
 import engine.Physical;
-
 import objects.*;
 import resource.Image;
-
 import android.app.Activity;
 import android.content.Context;
 import android.content.SharedPreferences;
@@ -34,6 +31,7 @@ import android.view.Menu;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.view.View;
+import audio.AudioControl;
 
 public class GameSceneActivity extends Activity {
 	private View myPanel = null;
@@ -54,6 +52,8 @@ public class GameSceneActivity extends Activity {
 	public static final String PREF_LIFE = "DOWNSTAIR_LIFE";
 	private GameData game;
 	private Physical physical;
+	private AudioControl audioControl;
+	
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		Log.e("created", "created");
@@ -61,19 +61,40 @@ public class GameSceneActivity extends Activity {
 		// 用來取得螢幕大小
 		DisplayMetrics displayMetrics = new DisplayMetrics();
 		getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
-
+		
 		screenWidth = displayMetrics.widthPixels;
 		screenHeight = displayMetrics.heightPixels;
 		
 		game = new GameData(screenWidth);
-		restorePrefs();
+		
+		Bundle bundle = getIntent().getExtras();
+		if(!bundle.getBoolean("isStart"))
+		{
+			restorePrefs();
+		}
+		
 		physical = new Physical();
 		myPanel = new Panel(this);
 		setContentView(myPanel);
 		
-		
+		initializeAudio();
 		
 		mySensor = new MySensor(getSystemService(SENSOR_SERVICE));
+	}
+	
+	@Override
+	protected void onDestroy()
+	{
+		//釋放資源
+		audioControl.releaseAll();
+		
+		super.onDestroy();
+	}
+	
+	private void initializeAudio()
+	{
+		//一開始就會播BGM
+		audioControl = new AudioControl(GameSceneActivity.this);
 	}
 
 	public void gameRun() {

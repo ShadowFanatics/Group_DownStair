@@ -50,8 +50,8 @@ public class MainActivity extends Activity {
 		startButton = (Button) findViewById(R.id.button_start);
 		startButton.setOnClickListener(startButtonListener);
 		continueButton = (Button) findViewById(R.id.button_continue);
-		//continueButton.setOnClickListener(continueButtonListener);
-		continueButton.setEnabled(false);
+		continueButton.setOnClickListener(continueButtonListener);
+		//continueButton.setEnabled(false);
 		rankButton = (Button) findViewById(R.id.button_rank);
 		rankButton.setOnClickListener(rankButtonListener);
 		exitButton = (Button) findViewById(R.id.button_exit);
@@ -69,14 +69,17 @@ public class MainActivity extends Activity {
 		@Override
 		public void onClick(View v)
 		{
+			Bundle bundle = new Bundle();
+			bundle.putBoolean("isStart", true);
+			
 			Intent intent = new Intent();
+			intent.putExtras(bundle);
 			intent.setClass(MainActivity.this, GameSceneActivity.class);
 			startActivity(intent);
-			MainActivity.this.finish();
 		}
 	};
 	
-	/*private Button.OnClickListener continueButtonListener = new Button.OnClickListener()
+	private Button.OnClickListener continueButtonListener = new Button.OnClickListener()
 	{
 		@Override
 		public void onClick(View v)
@@ -86,10 +89,10 @@ public class MainActivity extends Activity {
 			
 			Intent intent = new Intent();
 			intent.putExtras(bundle);
-			intent.setClass(TitleActivity.this, GameActivity.class);
-			startActivityForResult(intent, GAME_REQUEST);
+			intent.setClass(MainActivity.this, GameSceneActivity.class);
+			startActivity(intent);
 		}
-	};*/
+	};
 	
 	private Button.OnClickListener rankButtonListener = new Button.OnClickListener()
 	{
