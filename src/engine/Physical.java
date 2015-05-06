@@ -6,10 +6,13 @@ import android.util.Log;
 import objects.*;
 
 public class Physical {
-	private static float gravity = (float) 0.098;
-	private static float reflect = (float) 0.7;
-	private static ArrayList<AnimateObject> objects = new ArrayList<AnimateObject>();
-	public static void runObjects2() {
+	private final float gravity = (float) 0.098;
+	private final float reflect = (float) 0.7;
+	private ArrayList<AnimateObject> objects;
+	public Physical() {
+		objects = new ArrayList<AnimateObject>();
+	}
+	public void runObjects2() {
 		for (int i = 0; i < objects.size(); i++) {
 			AnimateObject temp = objects.get(i);
 			if ( temp.isGravity() ) {
@@ -31,7 +34,7 @@ public class Physical {
 		}
 	}
 	
-	public static void runObjects() {
+	public void runObjects() {
 		boolean isOnstair = false;
 		AnimateObject player = objects.get(0);
 		double objectAngle = 0;
@@ -82,11 +85,11 @@ public class Physical {
 		}
 	}
 	
-	public static void addObject(AnimateObject object) {
+	public void addObject(AnimateObject object) {
 		objects.add(object);
 	}
 
-	public static boolean isCollide(AnimateObject A, AnimateObject B) {
+	private boolean isCollide(AnimateObject A, AnimateObject B) {
 		int Ax = (int) A.getX();
 		int Ay = (int) A.getY();
 		int Aw = (int) A.getWidth();

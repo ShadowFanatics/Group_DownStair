@@ -6,6 +6,8 @@ import java.util.Random;
 import java.util.Timer;
 import java.util.TimerTask;
 
+import data.GameData;
+
 import engine.Physical;
 
 import objects.*;
@@ -13,6 +15,7 @@ import resource.Image;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -40,84 +43,79 @@ public class GameSceneActivity extends Activity {
 	private int screenWidth;
 	private int screenHeight;
 	private Resources res;
-	private float lastStairY = 100;
-	private int lastFloor = 0;
-	private final float lengthBetweenStair = 150;
 	private Thread paintThread;
 	private final long fps = 60;
-	private boolean gameOver = false;
-	private int life = 3;
 	private int frameCount = 0;
 	private ArrayList<float[]> pastPlayerLocation = new ArrayList<float[]>();
 	private final int snakeDelayFrame = 5;
 	private boolean isPause = false;
 	private MySensor mySensor;
+	public static final String PREF = "DOWNSTAIR_PREF";
+	public static final String PREF_LIFE = "DOWNSTAIR_LIFE";
+	private GameData game;
+	private Physical physical;
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		Log.e("save","created");
-		if (savedInstanceState != null) {
-	        // Restore value of members from saved state
-
-			life = savedInstanceState.getInt("STATE_LIFE");
-			Log.e("LIFE","READ");
-	        //mCurrentLevel = savedInstanceState.getInt(STATE_LEVEL);
-	    } else {
-	        // Probably initialize members with default values for a new instance
-
-	    }
+		Log.e("created", "created");
+		
 		// 用來取得螢幕大小
 		DisplayMetrics displayMetrics = new DisplayMetrics();
 		getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
 
 		screenWidth = displayMetrics.widthPixels;
 		screenHeight = displayMetrics.heightPixels;
-		if ( myPanel == null ) {
-			myPanel = new Panel(this);
-		}
+		
+		game = new GameData(screenWidth);
+		restorePrefs();
+		physical = new Physical();
+		myPanel = new Panel(this);
 		setContentView(myPanel);
+		
+		
 		
 		mySensor = new MySensor(getSystemService(SENSOR_SERVICE));
 	}
 
 	public void gameRun() {
 		player.setSpeedX(-mySensor.getForceX());
-		if (player.getY() > screenHeight ) {
-			//gameOver = true;
+		if (player.getY() > screenHeight) {
+			// gameOver = true;
 			player.setLocation(player.getX(), 0);
 		}
 		if (player.getX() < 0 && player.getSpeedX() < 0) {
 			player.setSpeedX((float) (-player.getSpeedX()));
 		}
-		if (player.getX() > screenWidth - player.getWidth() && player.getSpeedX() > 0 ) {
+		if (player.getX() > screenWidth - player.getWidth()
+				&& player.getSpeedX() > 0) {
 			player.setSpeedX((float) (-player.getSpeedX()));
 		}
 		// run all pbject physical
-		Physical.runObjects2();
-		
-		//add snake
+		physical.runObjects2();
+
+		// add snake
 		float loc[] = new float[9];
 		player.getMatrix().getValues(loc);
 		pastPlayerLocation.add(loc);
 		Matrix temp = new Matrix();
-		for (int i = 0;i < snakes.size(); i++ ) {
-			int indexOfLocation = pastPlayerLocation.size() - (i+1)*snakeDelayFrame;
-			if ( pastPlayerLocation.size() > (i+1)*snakeDelayFrame ) {
+		for (int i = 0; i < snakes.size(); i++) {
+			int indexOfLocation = pastPlayerLocation.size() - (i + 1)
+					* snakeDelayFrame;
+			if (pastPlayerLocation.size() > (i + 1) * snakeDelayFrame) {
 				temp.setValues(pastPlayerLocation.get(indexOfLocation));
 				snakes.get(i).setMatrix(temp);
-				snakes.get(i).move(0, 0-snakeDelayFrame*(i+1));
-				if ( i ==  snakes.size() - 1 ) {
+				snakes.get(i).move(0, 0 - snakeDelayFrame * (i + 1));
+				if (i == snakes.size() - 1) {
 					pastPlayerLocation.remove(0);
 				}
 			}
 		}
-		
+
 		frameCount++;
-		if ( frameCount > 60) {
+		if (frameCount > 60) {
 			frameCount = 0;
 		}
-		
-		
-		//stair put to bottom.
+
+		// stair put to bottom.
 		float max = 0;
 		int index = -1;
 		for (int i = 0; i < stairs.size(); i++) {
@@ -129,16 +127,17 @@ public class GameSceneActivity extends Activity {
 			}
 		}
 		if (index != -1) {
-			lastStairY = max + lengthBetweenStair;
+			game.lastStairY = max + game.lengthBetweenStair;
 			stairs.get(index).setLocation(getRandomInt(0, screenWidth - 100),
-					lastStairY);
-			//stairs.get(index).setDegree(getRandomInt(-45, 45));
-			stairs.get(index).setFloor(lastFloor);
-			lastFloor++;
+					game.lastStairY);
+			// stairs.get(index).setDegree(getRandomInt(-45, 45));
+			stairs.get(index).setFloor(game.lastFloor);
+			game.lastFloor++;
 		}
 	}
 
-	class Panel extends SurfaceView implements SurfaceHolder.Callback, Runnable, Serializable {
+	class Panel extends SurfaceView implements SurfaceHolder.Callback,
+			Runnable, Serializable {
 		private SurfaceHolder surfaceHolder;
 
 		public Panel(Context context) {
@@ -147,24 +146,25 @@ public class GameSceneActivity extends Activity {
 			res = getResources();
 			surfaceHolder = this.getHolder();
 			surfaceHolder.addCallback(this);
-
-			player = new AnimateObject(res, Image.snakeHead, screenWidth / 2, 0);
+		}
+		
+		public void addObjects() {
+			player = new AnimateObject(res, Image.snakeHead, game.playerLocation[0], game.playerLocation[1]);
 			player.setGravity(true);
-			Physical.addObject(player);
-			for (int i = 0; i < life; i++) {
-				snakes.add(new AnimateObject(res, Image.snakeBody, screenWidth / 2, 0));
+			physical.addObject(player);
+			for (int i = 0; i < game.life; i++) {
+				snakes.add(new AnimateObject(res, Image.snakeBody,
+						game.playerLocation[0], game.playerLocation[1]));
 			}
 			for (int i = 0; i < 10; i++) {
-				lastStairY += lengthBetweenStair;
-				StairObject temp = new StairObject(res, Image.stair, getRandomInt(0,
-						screenWidth - 100), lastStairY, lastFloor);
+				StairObject temp = new StairObject(res, Image.stair,
+						game.stairLocation[i][0], game.stairLocation[i][1],
+						game.lastFloor);
 				temp.addSpeedY(-1);
 				stairs.add(temp);
-				Physical.addObject(temp);
-				lastFloor++;
+				physical.addObject(temp);
 			}
 		}
-
 		public void draw() {
 			Canvas canvas = null;
 			try {
@@ -190,7 +190,7 @@ public class GameSceneActivity extends Activity {
 		}
 
 		public void run() {
-			while (!isPause&&!gameOver) {
+			while (!isPause && !game.gameOver) {
 				gameRun();
 				draw();
 				try {
@@ -203,24 +203,28 @@ public class GameSceneActivity extends Activity {
 		}
 
 		public void surfaceCreated(SurfaceHolder holder) {
-			Log.e("surfaceCreated","surfaceCreated");
+			Log.e("surfaceCreated", "surfaceCreated");
+			addObjects();
 			paintThread = new Thread(this);
 			paintThread.start();
 		}
 
 		public void surfaceChanged(SurfaceHolder holder, int format, int width,
 				int height) {
-			Log.e("surfaceChanged","surfaceChanged");
+			Log.e("surfaceChanged", "surfaceChanged");
 		}
 
 		public void surfaceDestroyed(SurfaceHolder holder) {
-			Log.e("surfaceDestroyed","surfaceDestroyed");
-			isPause = true;
+			Log.e("surfaceDestroyed", "surfaceDestroyed");
 		}
 	}
 
 	public boolean onKeyDown(int keyCode, KeyEvent event) {
 		if (keyCode == KeyEvent.KEYCODE_BACK && event.getRepeatCount() == 0) { // 確定按下退出鍵and防止重複按下退出鍵
+			finish();
+		}
+		if (keyCode == KeyEvent.KEYCODE_HOME && event.getRepeatCount() == 0) { // 確定按下退出鍵and防止重複按下退出鍵
+			Log.e("home","home");
 			finish();
 		}
 		if (keyCode == KeyEvent.KEYCODE_DPAD_LEFT) { // 確定按下退出鍵and防止重複按下退出鍵
@@ -231,45 +235,21 @@ public class GameSceneActivity extends Activity {
 		}
 		return false;
 	}
-		
+
+	private void restorePrefs() {
+		game.load(getSharedPreferences(PREF, 0));
+	}
+
 	@Override
 	protected void onPause() {
-		// TODO Auto-generated method stub
 		super.onPause();
+		isPause = true;
 		mySensor.onPause();
-		Log.e("onPause","onPause");
-	}
-	
-	@Override
-	protected void onResume() {
-		// TODO Auto-generated method stub
-		super.onResume();
-		Log.e("onResume","onResume");
+		game.save(getSharedPreferences(PREF, 0), player, stairs);
+		Log.e("onPause", "onPause");
+		finish();
 	}
 
-	public void onSaveInstanceState(Bundle savedInstanceState) {
-	    // Save the user’s current game state
-	    // The info. in the Bundle is stored as key-value form
-	    savedInstanceState.putInt("STATE_LIFE", life);
-	    //savedInstanceState.putInt(STATE_LEVEL, mCurrentLevel);
-	    // Always call the superclass so it can save the view hierarchy state
-	    // 一定要記得呼叫父類的方法，才會正確儲存 View 的狀態資訊
-		Log.e("save","saved");
-		super.onSaveInstanceState(savedInstanceState);
-	    
-	}	
-	
-	public void onRestoreInstanceState(Bundle savedInstanceState) {
-	    // 記得一定要呼叫父類的方法
-
-	    super.onRestoreInstanceState(savedInstanceState);
-
-	    // Restore state members from saved instance
-
-	    //mCurrentScore = savedInstanceState.getInt(STATE_SCORE);
-	    //mCurrentLevel = savedInstanceState.getInt(STATE_LEVEL);
-	}
-	
 	public boolean onCreateOptionsMenu(Menu menu) {
 		// Inflate the menu; this adds items to the action bar if it is present.
 		getMenuInflater().inflate(R.menu.main, menu);
