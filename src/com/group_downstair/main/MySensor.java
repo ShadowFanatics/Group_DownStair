@@ -20,7 +20,7 @@ public class MySensor {
 		sensorMgr.unregisterListener(listener);
 	}
 	public float getForceX() {
-		return gravity[0];
+		return gravity[0]*2;
 	}
 	private SensorEventListener listener = new SensorEventListener(){
 
