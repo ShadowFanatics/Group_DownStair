@@ -1,17 +1,18 @@
 package com.group_downstair.main;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Random;
 import java.util.Timer;
 import java.util.TimerTask;
 
+import data.GameData;
 import engine.Physical;
-
 import objects.*;
 import resource.Image;
-
 import android.app.Activity;
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -19,6 +20,7 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Matrix;
 import android.graphics.Paint;
+import android.hardware.SensorManager;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -29,48 +31,115 @@ import android.view.Menu;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.view.View;
+import audio.AudioControl;
 
 public class GameSceneActivity extends Activity {
-	private View myPanel;
+	private View myPanel = null;
 	private AnimateObject player;
+	private ArrayList<AnimateObject> snakes = new ArrayList<AnimateObject>();
 	private ArrayList<StairObject> stairs = new ArrayList<StairObject>();
 	private int screenWidth;
 	private int screenHeight;
 	private Resources res;
-	private float lastStairY = 100;
-	private int lastFloor = 0;
-	private final float lengthBetweenStair = 150;
 	private Thread paintThread;
 	private final long fps = 60;
-	private boolean gameOver = false;
+	private int frameCount = 0;
+	private ArrayList<float[]> pastPlayerLocation = new ArrayList<float[]>();
+	private final int snakeDelayFrame = 5;
+	private boolean isPause = false;
+	private MySensor mySensor;
+	public static final String PREF = "DOWNSTAIR_PREF";
+	public static final String PREF_LIFE = "DOWNSTAIR_LIFE";
+	private GameData game;
+	private Physical physical;
+	private AudioControl audioControl;
+	
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		Log.e("created", "created");
+		
 		// 用來取得螢幕大小
 		DisplayMetrics displayMetrics = new DisplayMetrics();
 		getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
-
+		
 		screenWidth = displayMetrics.widthPixels;
 		screenHeight = displayMetrics.heightPixels;
+		
+		game = new GameData(screenWidth);
+		
+		Bundle bundle = getIntent().getExtras();
+		if(!bundle.getBoolean("isStart"))
+		{
+			restorePrefs();
+		}
+		
+		physical = new Physical();
 		myPanel = new Panel(this);
 		setContentView(myPanel);
-
+		
+		initializeAudio();
+		
+		mySensor = new MySensor(getSystemService(SENSOR_SERVICE));
+	}
+	
+	@Override
+	protected void onDestroy()
+	{
+		//釋放資源
+		audioControl.releaseAll();
+		
+		super.onDestroy();
+	}
+	
+	private void initializeAudio()
+	{
+		//一開始就會播BGM
+		audioControl = new AudioControl(GameSceneActivity.this);
 	}
 
 	public void gameRun() {
-
-		Physical.runObjects2();
-		
-		if (player.getY() > screenHeight ) {
-			//gameOver = true;
+		player.setSpeedX(-mySensor.getForceX());
+		if (player.getY() > screenHeight) {
+			// gameOver = true;
 			player.setLocation(player.getX(), 0);
 		}
-		if (player.getX() < 0 ) {
+		if (player.getX() < 0 && player.getSpeedX() < 0) {
 			player.setSpeedX((float) (-player.getSpeedX()));
 		}
-		if (player.getX() > screenWidth - player.getWidth() ) {
+		if (player.getX() > screenWidth - player.getWidth()
+				&& player.getSpeedX() > 0) {
 			player.setSpeedX((float) (-player.getSpeedX()));
 		}
-		
+		// run all pbject physical
+		int floor = physical.runObjects2();
+		if ( floor != -1 && floor > game.userFloor ) {
+			game.userFloor = floor;
+		}
+
+		// add snake
+		float loc[] = new float[9];
+		player.getMatrix().getValues(loc);
+		pastPlayerLocation.add(loc);
+		Matrix temp = new Matrix();
+		for (int i = 0; i < snakes.size(); i++) {
+			int indexOfLocation = pastPlayerLocation.size() - (i + 1)
+					* snakeDelayFrame;
+			if (pastPlayerLocation.size() > (i + 1) * snakeDelayFrame) {
+				temp.setValues(pastPlayerLocation.get(indexOfLocation));
+				snakes.get(i).setMatrix(temp);
+				snakes.get(i).move(0, 0 - snakeDelayFrame * (i + 1));
+				if (i == snakes.size() - 1) {
+					pastPlayerLocation.remove(0);
+				}
+			}
+		}
+
+		frameCount++;
+		if (frameCount > 60) {
+			frameCount = 0;
+		}
+
+		// stair put to bottom.
 		float max = 0;
 		int index = -1;
 		for (int i = 0; i < stairs.size(); i++) {
@@ -82,50 +151,63 @@ public class GameSceneActivity extends Activity {
 			}
 		}
 		if (index != -1) {
-			lastStairY = max + lengthBetweenStair;
+			game.lastStairY = max + game.lengthBetweenStair;
 			stairs.get(index).setLocation(getRandomInt(0, screenWidth - 100),
-					lastStairY);
-			//stairs.get(index).setDegree(getRandomInt(-45, 45));
-			stairs.get(index).setFloor(lastFloor);
-			lastFloor++;
+					game.lastStairY);
+			// stairs.get(index).setDegree(getRandomInt(-45, 45));
+			stairs.get(index).setFloor(game.lastFloor);
+			game.lastFloor++;
 		}
 	}
 
-	class Panel extends SurfaceView implements SurfaceHolder.Callback, Runnable {
+	class Panel extends SurfaceView implements SurfaceHolder.Callback,
+			Runnable, Serializable {
 		private SurfaceHolder surfaceHolder;
 
 		public Panel(Context context) {
 			super(context);
+			this.setId(123);
 			res = getResources();
 			surfaceHolder = this.getHolder();
 			surfaceHolder.addCallback(this);
-			paintThread = new Thread(this);
-
-			player = new AnimateObject(res, Image.player, screenWidth / 2, 0);
+		}
+		
+		public void addObjects() {
+			player = new AnimateObject(res, Image.snakeHead, game.playerLocation[0], game.playerLocation[1]);
 			player.setGravity(true);
-			Physical.addObject(player);
+			physical.addObject(player);
+			for (int i = 0; i < game.life; i++) {
+				snakes.add(new AnimateObject(res, Image.snakeBody,
+						game.playerLocation[0], game.playerLocation[1]));
+			}
 			for (int i = 0; i < 10; i++) {
-				lastStairY += lengthBetweenStair;
-				StairObject temp = new StairObject(res, Image.stair, getRandomInt(0,
-						screenWidth - 100), lastStairY, lastFloor);
+				StairObject temp = new StairObject(res, Image.stair,
+						game.stairLocation[i][0], game.stairLocation[i][1],
+						game.stairFloor[i]);
 				temp.addSpeedY(-1);
 				stairs.add(temp);
-				Physical.addObject(temp);
-				lastFloor++;
+				physical.addObject(temp);
 			}
 		}
-
 		public void draw() {
 			Canvas canvas = null;
 			try {
 				canvas = surfaceHolder.lockCanvas(null);
 				synchronized (surfaceHolder) {
 					canvas.drawColor(Color.BLUE);
+					for (int i = 0; i < snakes.size(); i++) {
+						canvas.drawBitmap(snakes.get(i).getImg(), snakes.get(i)
+								.getMatrix(), null);
+					}
 					canvas.drawBitmap(player.getImg(), player.getMatrix(), null);
 					for (int i = 0; i < stairs.size(); i++) {
 						canvas.drawBitmap(stairs.get(i).getImg(), stairs.get(i)
 								.getMatrix(), null);
 					}
+					Paint paint = new Paint();
+					paint.setColor(Color.WHITE);
+					paint.setTextSize(30);
+					canvas.drawText(String.valueOf(game.userFloor), 30, 30, paint);
 				}
 			} finally {
 				if (canvas != null) {
@@ -136,7 +218,7 @@ public class GameSceneActivity extends Activity {
 		}
 
 		public void run() {
-			while (!gameOver) {
+			while (!isPause && !game.gameOver) {
 				gameRun();
 				draw();
 				try {
@@ -149,14 +231,19 @@ public class GameSceneActivity extends Activity {
 		}
 
 		public void surfaceCreated(SurfaceHolder holder) {
+			Log.e("surfaceCreated", "surfaceCreated");
+			addObjects();
+			paintThread = new Thread(this);
 			paintThread.start();
 		}
 
 		public void surfaceChanged(SurfaceHolder holder, int format, int width,
 				int height) {
+			Log.e("surfaceChanged", "surfaceChanged");
 		}
 
 		public void surfaceDestroyed(SurfaceHolder holder) {
+			Log.e("surfaceDestroyed", "surfaceDestroyed");
 		}
 	}
 
@@ -171,6 +258,20 @@ public class GameSceneActivity extends Activity {
 			player.setSpeedX(5);
 		}
 		return false;
+	}
+
+	private void restorePrefs() {
+		game.load(getSharedPreferences(PREF, 0));
+	}
+
+	@Override
+	protected void onPause() {
+		super.onPause();
+		isPause = true;
+		mySensor.onPause();
+		game.save(getSharedPreferences(PREF, 0), player, stairs);
+		Log.e("onPause", "onPause");
+		finish();
 	}
 
 	public boolean onCreateOptionsMenu(Menu menu) {
