@@ -90,7 +90,10 @@ public class GameSceneActivity extends Activity {
 			player.setSpeedX((float) (-player.getSpeedX()));
 		}
 		// run all pbject physical
-		physical.runObjects2();
+		int floor = physical.runObjects2();
+		if ( floor != -1 && floor > game.userFloor ) {
+			game.userFloor = floor;
+		}
 
 		// add snake
 		float loc[] = new float[9];
@@ -159,7 +162,7 @@ public class GameSceneActivity extends Activity {
 			for (int i = 0; i < 10; i++) {
 				StairObject temp = new StairObject(res, Image.stair,
 						game.stairLocation[i][0], game.stairLocation[i][1],
-						game.lastFloor);
+						game.stairFloor[i]);
 				temp.addSpeedY(-1);
 				stairs.add(temp);
 				physical.addObject(temp);
@@ -180,6 +183,10 @@ public class GameSceneActivity extends Activity {
 						canvas.drawBitmap(stairs.get(i).getImg(), stairs.get(i)
 								.getMatrix(), null);
 					}
+					Paint paint = new Paint();
+					paint.setColor(Color.WHITE);
+					paint.setTextSize(30);
+					canvas.drawText(String.valueOf(game.userFloor), 30, 30, paint);
 				}
 			} finally {
 				if (canvas != null) {
@@ -221,10 +228,6 @@ public class GameSceneActivity extends Activity {
 
 	public boolean onKeyDown(int keyCode, KeyEvent event) {
 		if (keyCode == KeyEvent.KEYCODE_BACK && event.getRepeatCount() == 0) { // 確定按下退出鍵and防止重複按下退出鍵
-			finish();
-		}
-		if (keyCode == KeyEvent.KEYCODE_HOME && event.getRepeatCount() == 0) { // 確定按下退出鍵and防止重複按下退出鍵
-			Log.e("home","home");
 			finish();
 		}
 		if (keyCode == KeyEvent.KEYCODE_DPAD_LEFT) { // 確定按下退出鍵and防止重複按下退出鍵

@@ -12,7 +12,8 @@ public class Physical {
 	public Physical() {
 		objects = new ArrayList<AnimateObject>();
 	}
-	public void runObjects2() {
+	public int runObjects2() {
+		int floor = -1;
 		for (int i = 0; i < objects.size(); i++) {
 			AnimateObject temp = objects.get(i);
 			if ( temp.isGravity() ) {
@@ -30,8 +31,10 @@ public class Physical {
 				player.addSpeedY(0-gravity);
 				player.setSpeedY((float) (0-player.getSpeedY())*reflect);
 				player.move(player.getSpeedX(), player.getSpeedY()-1);
+				floor = ((StairObject)temp).getFloor();
 			}
 		}
+		return floor;
 	}
 	
 	public void runObjects() {
