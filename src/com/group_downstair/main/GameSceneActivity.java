@@ -303,7 +303,7 @@ public class GameSceneActivity extends Activity {
 				synchronized (surfaceHolder) {
 					canvas.drawColor(Color.GREEN);
 					//canvas.drawBitmap(background, 0, deadLine, null);
-					canvas.drawBitmap(background, new Rect(0,(int) deadLine,540,960), new
+					canvas.drawBitmap(background, new Rect(0,(int) deadLine,800,1280), new
 					Rect(0,0,screenWidth,screenHeight), null);
 					for (int i = 0; i < snakes.size(); i++) {
 						canvas.drawBitmap(snakes.get(i).getImg(), snakes.get(i)
@@ -319,7 +319,7 @@ public class GameSceneActivity extends Activity {
 								.getMatrix(), null);
 					}
 					//canvas.drawBitmap(status, 0, 0, null);
-					canvas.drawBitmap(status, new Rect(0,0,540,100), new
+					canvas.drawBitmap(status, new Rect(0,0,800,100), new
 							Rect(0,0,screenWidth,100), null);
 					if (playRedEffect) {
 						canvas.drawColor(Color.RED);
