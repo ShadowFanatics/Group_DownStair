@@ -75,13 +75,13 @@ public class GameSceneActivity extends Activity {
 		screenWidth = displayMetrics.widthPixels;
 		screenHeight = displayMetrics.heightPixels;
 
-		game = new GameData(screenWidth);
+		game = new GameData(screenWidth,density);
 
 		Bundle bundle = getIntent().getExtras();
 		if (!bundle.getBoolean("isStart")) {
 			restorePrefs();
 		}
-		
+
 		physical = new Physical();
 		myPanel = new Panel(this);
 		setContentView(myPanel);
@@ -242,9 +242,9 @@ public class GameSceneActivity extends Activity {
 			break;
 		case 2: // bomb
 			// TODO play hurt sound
-			audioControl.playSound3();
+			//audioControl.playSound3();
 			// test star BGM XDDDD
-			audioControl.changeBGM();
+			//audioControl.changeBGM();
 			
 			if (game.life > 0) {
 				snakes.remove(snakes.size() - 1);
@@ -267,6 +267,7 @@ public class GameSceneActivity extends Activity {
 		public Panel(Context context) {
 			super(context);
 			this.setId(123);
+			this.setKeepScreenOn(true);
 			res = getResources();
 			surfaceHolder = this.getHolder();
 			surfaceHolder.addCallback(this);
@@ -278,7 +279,7 @@ public class GameSceneActivity extends Activity {
 
 		public void addObjects() {
 			player = new AnimateObject(res, Image.snakeHead,
-					game.playerLocation[0] * density, game.playerLocation[1]*density);
+					game.playerLocation[0] , game.playerLocation[1]);
 			player.setGravity(true);
 			physical.addObject(player);
 			for (int i = 0; i < game.life; i++) {
@@ -301,9 +302,9 @@ public class GameSceneActivity extends Activity {
 				canvas = surfaceHolder.lockCanvas(null);
 				synchronized (surfaceHolder) {
 					canvas.drawColor(Color.GREEN);
-					canvas.drawBitmap(background, 0, deadLine, null);
-					// canvas.drawBitmap(background, new Rect(0,0,540,960), new
-					// Rect(0,0,screenWidth,screenHeight), null);
+					//canvas.drawBitmap(background, 0, deadLine, null);
+					canvas.drawBitmap(background, new Rect(0,(int) deadLine,540,960), new
+					Rect(0,0,screenWidth,screenHeight), null);
 					for (int i = 0; i < snakes.size(); i++) {
 						canvas.drawBitmap(snakes.get(i).getImg(), snakes.get(i)
 								.getMatrix(), null);
@@ -317,7 +318,9 @@ public class GameSceneActivity extends Activity {
 						canvas.drawBitmap(items.get(i).getImg(), items.get(i)
 								.getMatrix(), null);
 					}
-					canvas.drawBitmap(status, 0, 0, null);
+					//canvas.drawBitmap(status, 0, 0, null);
+					canvas.drawBitmap(status, new Rect(0,0,540,100), new
+							Rect(0,0,screenWidth,100), null);
 					if (playRedEffect) {
 						canvas.drawColor(Color.RED);
 						// TODO play hurt sound

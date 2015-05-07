@@ -27,9 +27,9 @@ public class GameData {
 			"stairLocation2", "stairLocation3", "stairLocation4",
 			"stairLocation5", "stairLocation6", "stairLocation7", "stairLocation8", "stairLocation9" };
 
-	public GameData(int screenWidth) {
+	public GameData(int screenWidth, float density) {
 		playerLocation[0] = screenWidth / 2;
-		playerLocation[1] = 0;
+		playerLocation[1] = 250*density;
 		for (int i = 0; i < 10; i++) {
 			lastStairY += lengthBetweenStair;
 			stairLocation[i][0] = getRandomInt(0, screenWidth - 100);
