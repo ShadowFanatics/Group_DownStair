@@ -3,16 +3,15 @@ package com.group_downstair.main;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Random;
-import java.util.Timer;
-import java.util.TimerTask;
 
-import data.GameData;
-import engine.Physical;
-import objects.*;
+import objects.AnimateObject;
+import objects.ItemObject;
+import objects.StairObject;
 import resource.Image;
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.content.Context;
-import android.content.SharedPreferences;
+import android.content.DialogInterface;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -20,19 +19,17 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Matrix;
 import android.graphics.Paint;
-import android.graphics.Rect;
-import android.hardware.SensorManager;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.Message;
 import android.util.DisplayMetrics;
 import android.util.Log;
-import android.view.KeyEvent;
-import android.view.Menu;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.view.View;
+import android.widget.EditText;
+import android.widget.Toast;
 import audio.AudioControl;
+import data.GameData;
+import engine.Physical;
 
 public class GameSceneActivity extends Activity {
 	private View myPanel = null;
@@ -68,7 +65,7 @@ public class GameSceneActivity extends Activity {
 		super.onCreate(savedInstanceState);
 		Log.e("created", "created");
 
-		// 用來取得螢幕大小
+		// �靘��撟之撠�
 		DisplayMetrics displayMetrics = new DisplayMetrics();
 		getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
 
@@ -93,14 +90,14 @@ public class GameSceneActivity extends Activity {
 
 	@Override
 	protected void onDestroy() {
-		// 釋放資源
+		// ��鞈��
 		audioControl.releaseAll();
 
 		super.onDestroy();
 	}
 
 	private void initializeAudio() {
-		// 一開始就會播BGM
+		// 銝����停��BGM
 		audioControl = new AudioControl(GameSceneActivity.this);
 	}
 
@@ -341,8 +338,17 @@ public class GameSceneActivity extends Activity {
 				}
 			}
 			// TODO gameover here
-			draw();
-			finish();
+			new AlertDialog.Builder(GameSceneActivity.this)
+				.setTitle("請輸入你的名字")
+				.setPositiveButton("確定", new DialogInterface.OnClickListener() {
+					@Override
+					public void onClick(DialogInterface dialog, int which) {                               
+//						EditText editText = (EditText) (v.findViewById(R.id.edittext));
+//						Toast.makeText(getApplicationContext(), "你叫做" + editText.getText().toString(), Toast.LENGTH_SHORT).show();
+					}
+				}).show();
+//			draw();
+//			finish();
 		}
 
 		public void surfaceCreated(SurfaceHolder holder) {
