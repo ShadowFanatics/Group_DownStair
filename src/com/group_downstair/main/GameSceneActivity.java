@@ -84,6 +84,7 @@ public class GameSceneActivity extends Activity {
 		
 		physical = new Physical();
 		myPanel = new Panel(this);
+		
 		setContentView(myPanel);
 
 		initializeAudio();
@@ -267,6 +268,7 @@ public class GameSceneActivity extends Activity {
 		public Panel(Context context) {
 			super(context);
 			this.setId(123);
+			this.setKeepScreenOn(true);
 			res = getResources();
 			surfaceHolder = this.getHolder();
 			surfaceHolder.addCallback(this);
