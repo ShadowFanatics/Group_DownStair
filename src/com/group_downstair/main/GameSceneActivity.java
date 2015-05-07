@@ -58,7 +58,7 @@ public class GameSceneActivity extends Activity {
 	
 	private final float deadLine = 85;
 	private boolean playRedEffect = false;
-	private int playerFloor = -1; // use to play sound
+	private boolean playerFloor = false; // use to play sound
 
 	private AudioControl audioControl;
 
@@ -132,10 +132,12 @@ public class GameSceneActivity extends Activity {
 			game.userFloor = floor;
 		}
 		if (floor == -1) {
-			playerFloor = -1;
+			playerFloor = true;
 		} else {
-			if (floor != playerFloor) {
+			if (playerFloor) {
 				// TODO play jump sound here
+				audioControl.playSound2();
+				playerFloor = false;
 			}
 		}
 
@@ -231,11 +233,19 @@ public class GameSceneActivity extends Activity {
 	private void eatItem(int type) {
 		switch (type) {
 		case 1: // life
+			// TODO play heal sound
+			audioControl.playSound1();
+			
 			snakes.add(new AnimateObject(res, Image.snakeBody, player.getX(),
 					player.getY()));
 			game.life++;
 			break;
 		case 2: // bomb
+			// TODO play hurt sound
+			audioControl.playSound3();
+			// test star BGM XDDDD
+			audioControl.changeBGM();
+			
 			if (game.life > 0) {
 				snakes.remove(snakes.size() - 1);
 				game.life--;
@@ -310,6 +320,8 @@ public class GameSceneActivity extends Activity {
 					canvas.drawBitmap(status, 0, 0, null);
 					if (playRedEffect) {
 						canvas.drawColor(Color.RED);
+						// TODO play hurt sound
+						audioControl.playSound3();
 						playRedEffect = false;
 					}
 					Paint paint = new Paint();

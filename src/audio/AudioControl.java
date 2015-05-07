@@ -13,13 +13,10 @@ public class AudioControl
 	
 	private Context context;
 	private MediaPlayer bgmPlayer;
+	private MediaPlayer starPlayer;
 	private MediaPlayer sound1Player;
 	private MediaPlayer sound2Player;
-	
-	//因為MediaPlayer.create(...)也會作prepare
-	//用boolean判斷,避免一開始prepare完畢就播放
-	private boolean sound1Flag = false;
-	private boolean sound2Flag = false;
+	private MediaPlayer sound3Player;
 	
 	public AudioControl(Context context)
 	{
@@ -31,7 +28,7 @@ public class AudioControl
 	private void initializeMediaPlayers()
 	{
 		//bgmPlayer
-		bgmPlayer = MediaPlayer.create(context, R.raw.final_match);
+		bgmPlayer = MediaPlayer.create(context, R.raw.bubble_bobble);
 		bgmPlayer.setLooping(true);
 		bgmPlayer.setOnPreparedListener(new MediaPlayer.OnPreparedListener()
 		{
@@ -43,37 +40,21 @@ public class AudioControl
 			}
 		});
 		
+		//starPlayer
+		starPlayer = MediaPlayer.create(context, R.raw.mario_star);
+		starPlayer.setLooping(true);
+		
 		//sound1Player
 		sound1Player = MediaPlayer.create(context, R.raw.heal);
 		sound1Player.setLooping(false);
-		sound1Player.setOnPreparedListener(new MediaPlayer.OnPreparedListener()
-		{
-
-			public void onPrepared(MediaPlayer mp)
-			{
-				if(sound1Flag)
-				{
-					sound1Player.start();
-					System.out.println("play Sound1");
-				}
-			}
-		});
 		
 		//sound2Player
 		sound2Player = MediaPlayer.create(context, R.raw.jump);
 		sound2Player.setLooping(false);
-		sound2Player.setOnPreparedListener(new MediaPlayer.OnPreparedListener()
-		{
-
-			public void onPrepared(MediaPlayer mp)
-			{
-				if(sound2Flag)
-				{
-					sound2Player.start();
-					System.out.println("play Sound2");
-				}
-			}
-		});
+		
+		//sound3Player
+		sound3Player = MediaPlayer.create(context, R.raw.hurt);
+		sound3Player.setLooping(false);
 	}
 	
 	public void playBGM()
@@ -81,7 +62,7 @@ public class AudioControl
 		if(!bgmPlayer.isPlaying())
 		{
 			bgmPlayer.start();
-			System.out.println("play BGM");
+//			System.out.println("play BGM");
 		}
 	}
 	
@@ -90,43 +71,48 @@ public class AudioControl
 		if(bgmPlayer.isPlaying())
 		{
 			bgmPlayer.pause();
-			System.out.println("pause BGM");
+//			System.out.println("pause BGM");
+		}
+	}
+	
+	public void changeBGM()
+	{
+		if(bgmPlayer.isPlaying())
+		{
+			bgmPlayer.pause();
+			starPlayer.start();
+		}
+		else if(starPlayer.isPlaying())
+		{
+			starPlayer.pause();
+			bgmPlayer.start();
 		}
 	}
 	
 	public void playSound1()
 	{
-		if(sound1Flag)
-		{
-			if(!sound1Player.isPlaying())
-			{
-				sound1Player.start();
-				System.out.println("play Sound1");
-			}
-		}
-		else
+		if(!sound1Player.isPlaying())
 		{
 			sound1Player.start();
-			sound1Flag = true;
-			System.out.println("play Sound1");
+//			System.out.println("play Sound1");
 		}
 	}
 	
 	public void playSound2()
 	{
-		if(sound2Flag)
-		{
-			if(!sound2Player.isPlaying())
-			{
-				sound2Player.start();
-				System.out.println("play Sound2");
-			}
-		}
-		else
+		if(!sound2Player.isPlaying())
 		{
 			sound2Player.start();
-			sound2Flag = true;
-			System.out.println("play Sound2");
+//				System.out.println("play Sound2");
+		}
+	}
+	
+	public void playSound3()
+	{
+		if(!sound3Player.isPlaying())
+		{
+			sound3Player.start();
+//			System.out.println("play Sound3");
 		}
 	}
 	
@@ -136,21 +122,35 @@ public class AudioControl
 		{
 			bgmPlayer.release();
 			bgmPlayer = null;
-			System.out.println("release BGM");
+//			System.out.println("release BGM");
+		}
+		
+		if(starPlayer != null)
+		{
+			starPlayer.release();
+			starPlayer = null;
+//			System.out.println("release star");
 		}
 		
 		if(sound1Player != null)
 		{
 			sound1Player.release();
 			sound1Player = null;
-			System.out.println("release Sound1");
+//			System.out.println("release Sound1");
 		}
 		
 		if(sound2Player != null)
 		{
 			sound2Player.release();
 			sound2Player = null;
-			System.out.println("release Sound2");
+//			System.out.println("release Sound2");
+		}
+		
+		if(sound3Player != null)
+		{
+			sound3Player.release();
+			sound3Player = null;
+//			System.out.println("release Sound2");
 		}
 	}
 }
