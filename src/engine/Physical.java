@@ -6,7 +6,7 @@ import android.util.Log;
 import objects.*;
 
 public class Physical {
-	private float gravity = (float) 0.3;
+	private float gravity = (float) 0.9;
 	private final float reflect = (float) 0.7;
 	private ArrayList<AnimateObject> objects;
 	public Physical() {

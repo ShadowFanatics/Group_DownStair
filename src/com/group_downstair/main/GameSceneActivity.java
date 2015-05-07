@@ -329,11 +329,11 @@ public class GameSceneActivity extends Activity {
 					}
 					Paint paint = new Paint();
 					paint.setColor(Color.WHITE);
-					paint.setTextSize(30);
+					paint.setTextSize(30*density);
 					canvas.drawText("Floor: " + String.valueOf(game.userFloor),
-							5*density, 50*density, paint);
+							5*density, 50, paint);
 					canvas.drawText("Time: " + String.valueOf(game.timeTotal) + "s",
-							screenWidth - 150*density, 50*density, paint);
+							screenWidth - 150*density, 50, paint);
 					/*canvas.drawText("density: " + String.valueOf(density) ,
 							0, 100, paint);*/
 				}

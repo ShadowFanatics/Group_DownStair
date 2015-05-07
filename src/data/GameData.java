@@ -12,7 +12,7 @@ import android.util.Log;
 
 public class GameData {
 	public boolean gameOver = false;
-	public int life = 3;
+	public int life = 5;
 	public int lastFloor = 0;
 	public int userFloor = 0;
 	public int timeTotal = 0;
@@ -29,7 +29,7 @@ public class GameData {
 
 	public GameData(int screenWidth, float density) {
 		playerLocation[0] = screenWidth / 2;
-		playerLocation[1] = 250*density;
+		playerLocation[1] = 300*density;
 		for (int i = 0; i < 10; i++) {
 			lastStairY += lengthBetweenStair;
 			stairLocation[i][0] = getRandomInt(0, screenWidth - 100);
@@ -92,7 +92,7 @@ public class GameData {
 	public boolean load(SharedPreferences settings) {
 		if ( !settings.getBoolean("gameOver", true) ) {
 			gameOver = false;
-			life = settings.getInt("life", 3);
+			life = settings.getInt("life", 5);
 			lastFloor = settings.getInt("lastFloor", 0);
 			userFloor = settings.getInt("userFloor", 0);
 			timeTotal = settings.getInt("timeTotal", 0);
