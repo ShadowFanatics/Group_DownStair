@@ -10,6 +10,7 @@ import objects.StairObject;
 import resource.Image;
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.app.AlertDialog.Builder;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.res.Resources;
@@ -20,6 +21,8 @@ import android.graphics.Color;
 import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.SurfaceHolder;
@@ -51,7 +54,7 @@ public class GameSceneActivity extends Activity {
 	public static final String PREF_LIFE = "DOWNSTAIR_LIFE";
 	private GameData game;
 	private Physical physical;
-
+	private Builder dialog;
 	
 	private final float deadLine = 85;
 	private boolean playRedEffect = false;
@@ -86,6 +89,7 @@ public class GameSceneActivity extends Activity {
 		initializeAudio();
 
 		mySensor = new MySensor(getSystemService(SENSOR_SERVICE));
+		
 	}
 
 	@Override
@@ -338,19 +342,31 @@ public class GameSceneActivity extends Activity {
 				}
 			}
 			// TODO gameover here
-			new AlertDialog.Builder(GameSceneActivity.this)
-				.setTitle("請輸入你的名字")
-				.setPositiveButton("確定", new DialogInterface.OnClickListener() {
-					@Override
-					public void onClick(DialogInterface dialog, int which) {                               
-//						EditText editText = (EditText) (v.findViewById(R.id.edittext));
-//						Toast.makeText(getApplicationContext(), "你叫做" + editText.getText().toString(), Toast.LENGTH_SHORT).show();
-					}
-				}).show();
-//			draw();
-//			finish();
-		}
+			draw();
+			
+			mHandler.sendEmptyMessage(1);	
 
+			//finish();
+		}
+		
+		private Handler mHandler = new Handler() {
+		    public void handleMessage(Message msg) {
+		        switch (msg.what) {
+		        case 1:
+		        	new AlertDialog.Builder(GameSceneActivity.this)
+		    		.setTitle("請輸入你的名字")
+		    		.setPositiveButton("確定", new DialogInterface.OnClickListener() {
+		    			@Override
+		    			public void onClick(DialogInterface dialog, int which) {                               
+//		    				EditText editText = (EditText) (v.findViewById(R.id.edittext));
+//		    				Toast.makeText(getApplicationContext(), "你叫做" + editText.getText().toString(), Toast.LENGTH_SHORT).show();
+		    			}
+		    		}).show();
+		        	break;
+		        }
+		    }
+		};
+		
 		public void surfaceCreated(SurfaceHolder holder) {
 			addObjects();
 			paintThread = new Thread(this);
