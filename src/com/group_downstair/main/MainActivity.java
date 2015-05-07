@@ -3,6 +3,7 @@ package com.group_downstair.main;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -14,6 +15,7 @@ public class MainActivity extends Activity {
 	
 	private static final int GAME_REQUEST = 0;	//need >= 0
 	private static final int RANK_REQUEST = 1;
+	private static int drawble_title = R.drawable.drawble_title;
 	private Button startButton;
 	private Button continueButton;
 	private Button rankButton;
@@ -58,9 +60,9 @@ public class MainActivity extends Activity {
 		exitButton.setOnClickListener(exitButtonListener);
 		
 		
-		//layout = (LinearLayout)findViewById(R.id.MainActivity_layout);
+		layout = (LinearLayout)findViewById(R.id.MainActivity_layout);
 		//背景圖片
-		//layout.setBackground(this.getResources().getDrawable(drawble_title));
+		layout.setBackground(this.getResources().getDrawable(drawble_title));
 		
 	}
 	
