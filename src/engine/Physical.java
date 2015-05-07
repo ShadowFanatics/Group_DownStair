@@ -96,19 +96,31 @@ public class Physical {
 		int Ay = (int) A.getY();
 		int Aw = (int) A.getWidth();
 		int Ah = (int) A.getHeight();
-		float Acos = A.getCos();
-		float Asin = A.getSin();
+		//float Acos = A.getCos();
+		//float Asin = A.getSin();
 		int Bx = (int) B.getX();
 		int By = (int) B.getY();
 		int Bw = (int) B.getWidth();
 		int Bh = (int) B.getHeight();
 		boolean collideX = false;
 		boolean collideY = false;
-		if (Ax < Bx + Bw && Bx < Ax + Aw * Acos) {
+		/*if (Ax < Bx + Bw && Bx < Ax + Aw * Acos) {
 			collideX = true;
 		}
 		if (Ay + (Bx + Bw/2 - Ax) * Asin / Acos > By + Bh/2
 				&& By + Bh > Ay + (Bx + Bw/2 - Ax) * Asin / Acos) {
+			collideY = true;
+		}*/
+		if ( Ax + Aw > Bx && Ax + Aw < Bx + Bw) {
+			collideX = true;
+		}
+		if ( Bx + Bw > Ax && Bx + Bw < Ax + Aw) {
+			collideX = true;
+		}
+		if ( Ay + Ah > By && Ay + Ah < By + Bh) {
+			collideY = true;
+		}
+		if ( By + Bh > Ay && By + Bh < Ay + Ah) {
 			collideY = true;
 		}
 		return (collideX && collideY);

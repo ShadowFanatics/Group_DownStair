@@ -58,11 +58,12 @@ public class GameSceneActivity extends Activity {
 	private int timeTotal = 0;
 	private final float deadLine = 85;
 	private boolean playRedEffect = false;
-	private int playerFloor = -1; //use to play sound
+	private int playerFloor = -1; // use to play sound
 
 	private AudioControl audioControl;
-	
 
+	private float density = 1;
+	
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		Log.e("created", "created");
@@ -70,52 +71,47 @@ public class GameSceneActivity extends Activity {
 		// 用來取得螢幕大小
 		DisplayMetrics displayMetrics = new DisplayMetrics();
 		getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
-		
+
 		screenWidth = displayMetrics.widthPixels;
 		screenHeight = displayMetrics.heightPixels;
 
 		game = new GameData(screenWidth);
-		
+
 		Bundle bundle = getIntent().getExtras();
-		if(!bundle.getBoolean("isStart"))
-		{
+		if (!bundle.getBoolean("isStart")) {
 			restorePrefs();
 		}
-		
+
 		physical = new Physical();
 		myPanel = new Panel(this);
 		setContentView(myPanel);
 
-		
 		initializeAudio();
 
 		mySensor = new MySensor(getSystemService(SENSOR_SERVICE));
 	}
-	
+
 	@Override
-	protected void onDestroy()
-	{
-		//釋放資源
+	protected void onDestroy() {
+		// 釋放資源
 		audioControl.releaseAll();
-		
+
 		super.onDestroy();
 	}
-	
-	private void initializeAudio()
-	{
-		//一開始就會播BGM
+
+	private void initializeAudio() {
+		// 一開始就會播BGM
 		audioControl = new AudioControl(GameSceneActivity.this);
 	}
 
 	public void gameRun() {
-		player.setSpeedX(-mySensor.getForceX()*game.gameSpeed);
-		if (player.getY() < 100 ) {
-			if ( game.life > 0) {
-				snakes.remove(snakes.size()-1);
+		player.setSpeedX(-mySensor.getForceX());
+		if (player.getY() < 100*density) {
+			if (game.life > 0) {
+				snakes.remove(snakes.size() - 1);
 				game.life--;
-				player.setLocation(player.getX(), 150);
-			}
-			else {
+				player.setLocation(player.getX(), 150*density);
+			} else {
 				game.gameOver = true;
 			}
 			playRedEffect = true;
@@ -137,10 +133,9 @@ public class GameSceneActivity extends Activity {
 		}
 		if (floor == -1) {
 			playerFloor = -1;
-		}
-		else {
+		} else {
 			if (floor != playerFloor) {
-				//TODO play jump sound here
+				// TODO play jump sound here
 			}
 		}
 
@@ -155,8 +150,9 @@ public class GameSceneActivity extends Activity {
 			if (pastPlayerLocation.size() > (i + 1) * snakeDelayFrame) {
 				temp.setValues(pastPlayerLocation.get(indexOfLocation));
 				snakes.get(i).setMatrix(temp);
-				snakes.get(i).move(0, (0 - snakeDelayFrame * (i + 1))*game.gameSpeed);
-				if ( snakes.get(i).getY() < deadLine ) {
+				snakes.get(i).move(0,
+						(0 - snakeDelayFrame * (i + 1)) * game.gameSpeed);
+				if (snakes.get(i).getY() < deadLine) {
 					snakes.remove(i);
 					game.life--;
 					playRedEffect = true;
@@ -185,7 +181,7 @@ public class GameSceneActivity extends Activity {
 			tempItem.addSpeedY(-game.gameSpeed);
 			items.add(tempItem);
 		}
-		
+
 		// item move collide eat
 		for (int i = 0; i < items.size(); i++) {
 			ItemObject tempItem = items.get(i);
@@ -194,7 +190,7 @@ public class GameSceneActivity extends Activity {
 				eatItem(tempItem.getType());
 				items.remove(i);
 			}
-			if (tempItem.getY() < deadLine ) {
+			if (tempItem.getY() < deadLine) {
 				items.remove(i);
 			}
 		}
@@ -217,14 +213,14 @@ public class GameSceneActivity extends Activity {
 			stairs.get(index).setFloor(game.lastFloor);
 			game.lastFloor++;
 		}
-		
-		//add speed while game process
+
+		// add speed while game process
 		if (timeTotal % 10 == 1 && frameCount == 0) {
 			game.gameSpeed += 0.5;
 			physical.addGravity((float) 0.1);
 			for (int i = 0; i < stairs.size(); i++) {
 				stairs.get(i).setSpeedY(-game.gameSpeed);
-				
+
 			}
 			for (int i = 0; i < items.size(); i++) {
 				items.get(i).setSpeedY(-game.gameSpeed);
@@ -240,11 +236,10 @@ public class GameSceneActivity extends Activity {
 			game.life++;
 			break;
 		case 2: // bomb
-			if ( game.life > 0) {
-				snakes.remove(snakes.size()-1);
+			if (game.life > 0) {
+				snakes.remove(snakes.size() - 1);
 				game.life--;
-			}
-			else {
+			} else {
 				game.gameOver = true;
 			}
 			playRedEffect = true;
@@ -257,23 +252,23 @@ public class GameSceneActivity extends Activity {
 	class Panel extends SurfaceView implements SurfaceHolder.Callback,
 			Runnable, Serializable {
 		private SurfaceHolder surfaceHolder;
-		private Bitmap background,status;
-
+		private Bitmap background, status;
+		
 		public Panel(Context context) {
 			super(context);
 			this.setId(123);
 			res = getResources();
 			surfaceHolder = this.getHolder();
 			surfaceHolder.addCallback(this);
+			density = res.getDisplayMetrics().density;
 			background = BitmapFactory
 					.decodeResource(res, Image.gameBackground);
-			status = BitmapFactory
-					.decodeResource(res, Image.statusBack);
+			status = BitmapFactory.decodeResource(res, Image.statusBack);
 		}
 
 		public void addObjects() {
 			player = new AnimateObject(res, Image.snakeHead,
-					game.playerLocation[0], game.playerLocation[1]);
+					game.playerLocation[0] * density, game.playerLocation[1]*density);
 			player.setGravity(true);
 			physical.addObject(player);
 			for (int i = 0; i < game.life; i++) {
@@ -313,17 +308,19 @@ public class GameSceneActivity extends Activity {
 								.getMatrix(), null);
 					}
 					canvas.drawBitmap(status, 0, 0, null);
-					if ( playRedEffect ) {
+					if (playRedEffect) {
 						canvas.drawColor(Color.RED);
 						playRedEffect = false;
 					}
 					Paint paint = new Paint();
 					paint.setColor(Color.WHITE);
 					paint.setTextSize(30);
-					canvas.drawText("Floor: " + String.valueOf(game.userFloor), 5, 50,
-							paint);
-					canvas.drawText("Time: " + String.valueOf(timeTotal) + "s", screenWidth - 150, 50,
-							paint);
+					canvas.drawText("Floor: " + String.valueOf(game.userFloor),
+							5*density, 50*density, paint);
+					canvas.drawText("Time: " + String.valueOf(timeTotal) + "s",
+							screenWidth - 150*density, 50*density, paint);
+					/*canvas.drawText("density: " + String.valueOf(density) ,
+							0, 100, paint);*/
 				}
 			} finally {
 				if (canvas != null) {
@@ -343,7 +340,7 @@ public class GameSceneActivity extends Activity {
 					Log.e("thread", e.toString());
 				}
 			}
-			//TODO gameover here
+			// TODO gameover here
 			draw();
 			finish();
 		}
