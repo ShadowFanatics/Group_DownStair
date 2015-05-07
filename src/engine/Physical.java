@@ -6,7 +6,7 @@ import android.util.Log;
 import objects.*;
 
 public class Physical {
-	private final float gravity = (float) 0.098;
+	private float gravity = (float) 0.3;
 	private final float reflect = (float) 0.7;
 	private ArrayList<AnimateObject> objects;
 	public Physical() {
@@ -30,7 +30,7 @@ public class Physical {
 				player.move(0-player.getSpeedX(), 0-player.getSpeedY());
 				player.addSpeedY(0-gravity);
 				player.setSpeedY((float) (0-player.getSpeedY())*reflect);
-				player.move(player.getSpeedX(), player.getSpeedY()-1);
+				player.move(player.getSpeedX(), player.getSpeedY()+temp.getSpeedY());
 				floor = ((StairObject)temp).getFloor();
 			}
 		}
@@ -63,7 +63,6 @@ public class Physical {
 			player.move(player.getSpeedX(), player.getSpeedY());
 		}
 		else {
-			Log.e("objectAngle",String.valueOf(Math.sin(objectAngle)));
 			player.addSpeedX((float) (gravity*Math.sin(objectAngle)));
 			player.setSpeedY((float) (gravity*Math.cos(objectAngle)));
 			player.move(player.getSpeedX(), player.getSpeedY()-1);
@@ -92,11 +91,11 @@ public class Physical {
 		objects.add(object);
 	}
 
-	private boolean isCollide(AnimateObject A, AnimateObject B) {
+	public boolean isCollide(AnimateObject A, AnimateObject B) {
 		int Ax = (int) A.getX();
 		int Ay = (int) A.getY();
 		int Aw = (int) A.getWidth();
-		int Ah = 1;
+		int Ah = (int) A.getHeight();
 		float Acos = A.getCos();
 		float Asin = A.getSin();
 		int Bx = (int) B.getX();
@@ -113,5 +112,9 @@ public class Physical {
 			collideY = true;
 		}
 		return (collideX && collideY);
+	}
+	
+	public void addGravity(float g) {
+		gravity += g;
 	}
 }

@@ -23,6 +23,7 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Matrix;
 import android.graphics.Paint;
+import android.graphics.Rect;
 import android.hardware.SensorManager;
 import android.os.Bundle;
 import android.os.Handler;
@@ -40,6 +41,7 @@ public class GameSceneActivity extends Activity {
 	private AnimateObject player;
 	private ArrayList<AnimateObject> snakes = new ArrayList<AnimateObject>();
 	private ArrayList<StairObject> stairs = new ArrayList<StairObject>();
+	private ArrayList<ItemObject> items = new ArrayList<ItemObject>();
 	private int screenWidth;
 	private int screenHeight;
 	private Resources res;
@@ -54,33 +56,45 @@ public class GameSceneActivity extends Activity {
 	public static final String PREF_LIFE = "DOWNSTAIR_LIFE";
 	private GameData game;
 	private Physical physical;
+	private int timeTotal = 0;
+	private final float deadLine = 85;
+	private boolean playRedEffect = false;
+	private int playerFloor = -1; //use to play sound
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		Log.e("created", "created");
-		
+
 		// 用來取得螢幕大小
 		DisplayMetrics displayMetrics = new DisplayMetrics();
 		getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
 
 		screenWidth = displayMetrics.widthPixels;
 		screenHeight = displayMetrics.heightPixels;
-		
+
 		game = new GameData(screenWidth);
 		restorePrefs();
 		physical = new Physical();
 		myPanel = new Panel(this);
 		setContentView(myPanel);
-		
-		
-		
+
 		mySensor = new MySensor(getSystemService(SENSOR_SERVICE));
 	}
 
 	public void gameRun() {
-		player.setSpeedX(-mySensor.getForceX());
+		player.setSpeedX(-mySensor.getForceX()*game.gameSpeed);
+		if (player.getY() < 100 ) {
+			if ( game.life > 0) {
+				snakes.remove(snakes.size()-1);
+				game.life--;
+				player.setLocation(player.getX(), 150);
+			}
+			else {
+				game.gameOver = true;
+			}
+			playRedEffect = true;
+		}
 		if (player.getY() > screenHeight) {
-			// gameOver = true;
-			player.setLocation(player.getX(), 0);
+			game.gameOver = true;
 		}
 		if (player.getX() < 0 && player.getSpeedX() < 0) {
 			player.setSpeedX((float) (-player.getSpeedX()));
@@ -91,8 +105,16 @@ public class GameSceneActivity extends Activity {
 		}
 		// run all pbject physical
 		int floor = physical.runObjects2();
-		if ( floor != -1 && floor > game.userFloor ) {
+		if (floor != -1 && floor > game.userFloor) {
 			game.userFloor = floor;
+		}
+		if (floor == -1) {
+			playerFloor = -1;
+		}
+		else {
+			if (floor != playerFloor) {
+				//TODO play jump sound here
+			}
 		}
 
 		// add snake
@@ -106,7 +128,12 @@ public class GameSceneActivity extends Activity {
 			if (pastPlayerLocation.size() > (i + 1) * snakeDelayFrame) {
 				temp.setValues(pastPlayerLocation.get(indexOfLocation));
 				snakes.get(i).setMatrix(temp);
-				snakes.get(i).move(0, 0 - snakeDelayFrame * (i + 1));
+				snakes.get(i).move(0, (0 - snakeDelayFrame * (i + 1))*game.gameSpeed);
+				if ( snakes.get(i).getY() < deadLine ) {
+					snakes.remove(i);
+					game.life--;
+					playRedEffect = true;
+				}
 				if (i == snakes.size() - 1) {
 					pastPlayerLocation.remove(0);
 				}
@@ -114,10 +141,36 @@ public class GameSceneActivity extends Activity {
 		}
 
 		frameCount++;
-		if (frameCount > 60) {
+		if (frameCount > 50) {
 			frameCount = 0;
+			timeTotal++;
 		}
-
+		// generate item
+		if (timeTotal % 20 == 1 && frameCount == 0) {
+			ItemObject tempItem = new ItemObject(res, Image.itemLife,
+					getRandomInt(0, screenWidth), screenHeight, 1);
+			tempItem.addSpeedY(-game.gameSpeed);
+			items.add(tempItem);
+		}
+		if (timeTotal % 10 == 1 && frameCount == 0) {
+			ItemObject tempItem = new ItemObject(res, Image.itemBomb,
+					getRandomInt(0, screenWidth), screenHeight, 2);
+			tempItem.addSpeedY(-game.gameSpeed);
+			items.add(tempItem);
+		}
+		
+		// item move collide eat
+		for (int i = 0; i < items.size(); i++) {
+			ItemObject tempItem = items.get(i);
+			tempItem.move(tempItem.getSpeedX(), tempItem.getSpeedY());
+			if (physical.isCollide(tempItem, player)) {
+				eatItem(tempItem.getType());
+				items.remove(i);
+			}
+			if (tempItem.getY() < deadLine ) {
+				items.remove(i);
+			}
+		}
 		// stair put to bottom.
 		float max = 0;
 		int index = -1;
@@ -125,7 +178,7 @@ public class GameSceneActivity extends Activity {
 			if (stairs.get(i).getButtom() > max) {
 				max = stairs.get(i).getY();
 			}
-			if (stairs.get(i).getY() < -20) {
+			if (stairs.get(i).getY() < deadLine) {
 				index = i;
 			}
 		}
@@ -137,11 +190,47 @@ public class GameSceneActivity extends Activity {
 			stairs.get(index).setFloor(game.lastFloor);
 			game.lastFloor++;
 		}
+		
+		//add speed while game process
+		if (timeTotal % 10 == 1 && frameCount == 0) {
+			game.gameSpeed += 0.5;
+			physical.addGravity((float) 0.1);
+			for (int i = 0; i < stairs.size(); i++) {
+				stairs.get(i).setSpeedY(-game.gameSpeed);
+				
+			}
+			for (int i = 0; i < items.size(); i++) {
+				items.get(i).setSpeedY(-game.gameSpeed);
+			}
+		}
+	}
+
+	private void eatItem(int type) {
+		switch (type) {
+		case 1: // life
+			snakes.add(new AnimateObject(res, Image.snakeBody, player.getX(),
+					player.getY()));
+			game.life++;
+			break;
+		case 2: // bomb
+			if ( game.life > 0) {
+				snakes.remove(snakes.size()-1);
+				game.life--;
+			}
+			else {
+				game.gameOver = true;
+			}
+			playRedEffect = true;
+			break;
+		default:
+			break;
+		}
 	}
 
 	class Panel extends SurfaceView implements SurfaceHolder.Callback,
 			Runnable, Serializable {
 		private SurfaceHolder surfaceHolder;
+		private Bitmap background,status;
 
 		public Panel(Context context) {
 			super(context);
@@ -149,10 +238,15 @@ public class GameSceneActivity extends Activity {
 			res = getResources();
 			surfaceHolder = this.getHolder();
 			surfaceHolder.addCallback(this);
+			background = BitmapFactory
+					.decodeResource(res, Image.gameBackground);
+			status = BitmapFactory
+					.decodeResource(res, Image.statusBack);
 		}
-		
+
 		public void addObjects() {
-			player = new AnimateObject(res, Image.snakeHead, game.playerLocation[0], game.playerLocation[1]);
+			player = new AnimateObject(res, Image.snakeHead,
+					game.playerLocation[0], game.playerLocation[1]);
 			player.setGravity(true);
 			physical.addObject(player);
 			for (int i = 0; i < game.life; i++) {
@@ -163,17 +257,21 @@ public class GameSceneActivity extends Activity {
 				StairObject temp = new StairObject(res, Image.stair,
 						game.stairLocation[i][0], game.stairLocation[i][1],
 						game.stairFloor[i]);
-				temp.addSpeedY(-1);
+				temp.setSpeedY(-game.gameSpeed);
 				stairs.add(temp);
 				physical.addObject(temp);
 			}
 		}
+
 		public void draw() {
 			Canvas canvas = null;
 			try {
 				canvas = surfaceHolder.lockCanvas(null);
 				synchronized (surfaceHolder) {
-					canvas.drawColor(Color.BLUE);
+					canvas.drawColor(Color.GREEN);
+					canvas.drawBitmap(background, 0, deadLine, null);
+					// canvas.drawBitmap(background, new Rect(0,0,540,960), new
+					// Rect(0,0,screenWidth,screenHeight), null);
 					for (int i = 0; i < snakes.size(); i++) {
 						canvas.drawBitmap(snakes.get(i).getImg(), snakes.get(i)
 								.getMatrix(), null);
@@ -183,10 +281,22 @@ public class GameSceneActivity extends Activity {
 						canvas.drawBitmap(stairs.get(i).getImg(), stairs.get(i)
 								.getMatrix(), null);
 					}
+					for (int i = 0; i < items.size(); i++) {
+						canvas.drawBitmap(items.get(i).getImg(), items.get(i)
+								.getMatrix(), null);
+					}
+					canvas.drawBitmap(status, 0, 0, null);
+					if ( playRedEffect ) {
+						canvas.drawColor(Color.RED);
+						playRedEffect = false;
+					}
 					Paint paint = new Paint();
 					paint.setColor(Color.WHITE);
 					paint.setTextSize(30);
-					canvas.drawText(String.valueOf(game.userFloor), 30, 30, paint);
+					canvas.drawText("Floor: " + String.valueOf(game.userFloor), 5, 50,
+							paint);
+					canvas.drawText("Time: " + String.valueOf(timeTotal) + "s", screenWidth - 150, 50,
+							paint);
 				}
 			} finally {
 				if (canvas != null) {
@@ -201,16 +311,17 @@ public class GameSceneActivity extends Activity {
 				gameRun();
 				draw();
 				try {
-					Thread.sleep(17);
+					Thread.sleep(20);
 				} catch (InterruptedException e) {
-					// TODO Auto-generated catch block
 					Log.e("thread", e.toString());
 				}
 			}
+			//TODO gameover here
+			draw();
+			finish();
 		}
 
 		public void surfaceCreated(SurfaceHolder holder) {
-			Log.e("surfaceCreated", "surfaceCreated");
 			addObjects();
 			paintThread = new Thread(this);
 			paintThread.start();
@@ -218,25 +329,10 @@ public class GameSceneActivity extends Activity {
 
 		public void surfaceChanged(SurfaceHolder holder, int format, int width,
 				int height) {
-			Log.e("surfaceChanged", "surfaceChanged");
 		}
 
 		public void surfaceDestroyed(SurfaceHolder holder) {
-			Log.e("surfaceDestroyed", "surfaceDestroyed");
 		}
-	}
-
-	public boolean onKeyDown(int keyCode, KeyEvent event) {
-		if (keyCode == KeyEvent.KEYCODE_BACK && event.getRepeatCount() == 0) { // 確定按下退出鍵and防止重複按下退出鍵
-			finish();
-		}
-		if (keyCode == KeyEvent.KEYCODE_DPAD_LEFT) { // 確定按下退出鍵and防止重複按下退出鍵
-			player.setSpeedX(-5);
-		}
-		if (keyCode == KeyEvent.KEYCODE_DPAD_RIGHT) { // 確定按下退出鍵and防止重複按下退出鍵
-			player.setSpeedX(5);
-		}
-		return false;
 	}
 
 	private void restorePrefs() {
@@ -249,14 +345,7 @@ public class GameSceneActivity extends Activity {
 		isPause = true;
 		mySensor.onPause();
 		game.save(getSharedPreferences(PREF, 0), player, stairs);
-		Log.e("onPause", "onPause");
 		finish();
-	}
-
-	public boolean onCreateOptionsMenu(Menu menu) {
-		// Inflate the menu; this adds items to the action bar if it is present.
-		getMenuInflater().inflate(R.menu.main, menu);
-		return true;
 	}
 
 	private int getRandomInt(int min, int max) {

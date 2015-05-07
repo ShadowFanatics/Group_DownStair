@@ -18,7 +18,7 @@ public class AnimateObject {
 	protected Matrix matrix = new Matrix();
 	protected int width;
 	protected int height;
-	protected float degree;
+	protected float degree = 0;
 	protected float preStatus[] = new float[9];
 	protected float speedX = 0;
 	protected float speedY = 0;
