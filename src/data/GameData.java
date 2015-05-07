@@ -15,9 +15,11 @@ public class GameData {
 	public int life = 3;
 	public int lastFloor = 0;
 	public int userFloor = 0;
+	public int timeTotal = 0;
 	public float lengthBetweenStair = 150;
 	public float lastStairY = 100;
-
+	public float gameSpeed = (float) 1.5; //not save yet
+	
 	public float playerLocation[] = new float[2];
 	public float stairLocation[][] = new float[10][2];
 	public int stairFloor[] = new int[10];
@@ -50,8 +52,10 @@ public class GameData {
 				.putFloat("lengthBetweenStair", lengthBetweenStair)
 				.putFloat("lastStairY", lastStairY)
 				.putInt("userFloor", userFloor)
+				.putInt("timeTotal", timeTotal)
 				.putFloat("playerLocationX", playerLocation[0])
 				.putFloat("playerLocationY", playerLocation[1])
+				.putFloat("gameSpeed", gameSpeed)
 				.putFloat(PREF_STAIR[0] + "X", stairLocation[0][0])
 				.putFloat(PREF_STAIR[0] + "Y", stairLocation[0][1])
 				.putInt(PREF_STAIR[0] + "Floor", stairFloor[0])
@@ -83,19 +87,18 @@ public class GameData {
 				.putFloat(PREF_STAIR[9] + "Y", stairLocation[9][1])
 				.putInt(PREF_STAIR[9] + "Floor", stairFloor[9]).commit();
 		
-		Log.e("save","save");
 	}
 
 	public boolean load(SharedPreferences settings) {
 		if ( !settings.getBoolean("gameOver", true) ) {
-			Log.e("load","load");
 			gameOver = false;
 			life = settings.getInt("life", 3);
 			lastFloor = settings.getInt("lastFloor", 0);
 			userFloor = settings.getInt("userFloor", 0);
+			timeTotal = settings.getInt("timeTotal", 0);
 			lengthBetweenStair = settings.getFloat("lengthBetweenStair", 150);
 			lastStairY = settings.getFloat("lastStairY", 100);
-			
+			gameSpeed = settings.getFloat("gameSpeed", (float) 1.5);
 			playerLocation[0] = settings.getFloat("playerLocationX", 0);
 			playerLocation[1] = settings.getFloat("playerLocationY", 0);
 			for ( int i = 0; i < 10; i++ ) {

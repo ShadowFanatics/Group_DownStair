@@ -35,7 +35,7 @@ public class AudioControl
 		bgmPlayer.setLooping(true);
 		bgmPlayer.setOnPreparedListener(new MediaPlayer.OnPreparedListener()
 		{
-			@Override
+
 			public void onPrepared(MediaPlayer mp)	//當音訊準備好(可被播放)時執行
 			{
 				bgmPlayer.start();
@@ -48,7 +48,7 @@ public class AudioControl
 		sound1Player.setLooping(false);
 		sound1Player.setOnPreparedListener(new MediaPlayer.OnPreparedListener()
 		{
-			@Override
+
 			public void onPrepared(MediaPlayer mp)
 			{
 				if(sound1Flag)
@@ -64,7 +64,7 @@ public class AudioControl
 		sound2Player.setLooping(false);
 		sound2Player.setOnPreparedListener(new MediaPlayer.OnPreparedListener()
 		{
-			@Override
+
 			public void onPrepared(MediaPlayer mp)
 			{
 				if(sound2Flag)

@@ -66,7 +66,7 @@ public class MainActivity extends Activity {
 	
 	private Button.OnClickListener startButtonListener = new Button.OnClickListener()
 	{
-		@Override
+		
 		public void onClick(View v)
 		{
 			Bundle bundle = new Bundle();
@@ -81,7 +81,7 @@ public class MainActivity extends Activity {
 	
 	private Button.OnClickListener continueButtonListener = new Button.OnClickListener()
 	{
-		@Override
+
 		public void onClick(View v)
 		{
 			Bundle bundle = new Bundle();
@@ -96,7 +96,7 @@ public class MainActivity extends Activity {
 	
 	private Button.OnClickListener rankButtonListener = new Button.OnClickListener()
 	{
-		@Override
+
 		public void onClick(View v)
 		{	
 			Bundle bundle = new Bundle();
@@ -112,7 +112,7 @@ public class MainActivity extends Activity {
 	
 	private Button.OnClickListener exitButtonListener = new Button.OnClickListener()
 	{
-		@Override
+
 		public void onClick(View v)
 		{
 			MainActivity.this.finish();

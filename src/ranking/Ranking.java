@@ -58,8 +58,8 @@ public class Ranking extends Activity{
 	        //list sort
 	        Collections.sort(mListlist,new Comparator<RankData>() {
 	        	
-				@Override
-				public int compare(RankData lhs, RankData rhs) {
+
+	        	public int compare(RankData lhs, RankData rhs) {
 					// TODO Auto-generated method stub
 					//Date date1 = stringToDate(lhs.getTSec());
 					//Date date2 = stringToDate(rhs.getTSec());
@@ -98,8 +98,8 @@ public class Ranking extends Activity{
 	        
 	        lv.setOnItemClickListener(new OnItemClickListener(){
 
-				@Override
-				public void onItemClick(AdapterView<?> parent, View view,
+
+	        	public void onItemClick(AdapterView<?> parent, View view,
 						int position, long id) {
 					// TODO Auto-generated method stub
 					Toast.makeText(Ranking.this, "輕觸一下表單 回到主畫面", Toast.LENGTH_SHORT).show();
@@ -180,17 +180,14 @@ public class Ranking extends Activity{
 	            this.mList = list;  
 	        }  
 	      
-	        @Override  
 	        public int getCount() {  
 	            return mList != null ? mList.size() : 0;  
 	        }  
 	      
-	        @Override  
 	        public Object getItem(int position) {  
 	            return mList.get(position);  
 	        }  
 	      
-	        @Override  
 	        public long getItemId(int position) {  
 	            return position;  
 	        }  
@@ -204,7 +201,6 @@ public class Ranking extends Activity{
 	            //private Button button;
 	        }
 
-			@Override
 			public View getView(int position, View convertView, ViewGroup parent) {
 				// TODO Auto-generated method stub
 	            ViewHolder holder = null;  

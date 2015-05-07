@@ -60,3 +60,4 @@ $RECYCLE.BIN/
 assets/
 bin/
 gen/
+.settings/
