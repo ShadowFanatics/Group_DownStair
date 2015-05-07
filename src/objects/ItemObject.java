@@ -4,6 +4,7 @@ import android.content.res.Resources;
 
 public class ItemObject extends AnimateObject {
 	private int type = 0;
+	private boolean isVisible  =false;
 	public ItemObject(Resources res, int imgResource, float x, float y, int t) {
 		super(res, imgResource, x, y);
 		type = t;
@@ -15,5 +16,13 @@ public class ItemObject extends AnimateObject {
 	
 	public int getType() {
 		return type;
+	}
+	
+	public void setVisible(boolean v) {
+		isVisible = v;
+	}
+	
+	public boolean getVisible() {
+		return isVisible;
 	}
 }

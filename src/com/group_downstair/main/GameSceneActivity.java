@@ -55,7 +55,7 @@ public class GameSceneActivity extends Activity {
 	private GameData game;
 	private Physical physical;
 
-	private int timeTotal = 0;
+	
 	private final float deadLine = 85;
 	private boolean playRedEffect = false;
 	private int playerFloor = -1; // use to play sound
@@ -81,7 +81,7 @@ public class GameSceneActivity extends Activity {
 		if (!bundle.getBoolean("isStart")) {
 			restorePrefs();
 		}
-
+		
 		physical = new Physical();
 		myPanel = new Panel(this);
 		setContentView(myPanel);
@@ -166,16 +166,16 @@ public class GameSceneActivity extends Activity {
 		frameCount++;
 		if (frameCount > 50) {
 			frameCount = 0;
-			timeTotal++;
+			game.timeTotal++;
 		}
 		// generate item
-		if (timeTotal % 20 == 1 && frameCount == 0) {
+		if (game.timeTotal % 20 == 1 && frameCount == 0) {
 			ItemObject tempItem = new ItemObject(res, Image.itemLife,
 					getRandomInt(0, screenWidth), screenHeight, 1);
 			tempItem.addSpeedY(-game.gameSpeed);
 			items.add(tempItem);
 		}
-		if (timeTotal % 10 == 1 && frameCount == 0) {
+		if (game.timeTotal % 10 == 1 && frameCount == 0) {
 			ItemObject tempItem = new ItemObject(res, Image.itemBomb,
 					getRandomInt(0, screenWidth), screenHeight, 2);
 			tempItem.addSpeedY(-game.gameSpeed);
@@ -206,7 +206,7 @@ public class GameSceneActivity extends Activity {
 			}
 		}
 		if (index != -1) {
-			game.lastStairY = max + game.lengthBetweenStair;
+			game.lastStairY = max + game.lengthBetweenStair*density;
 			stairs.get(index).setLocation(getRandomInt(0, screenWidth - 100),
 					game.lastStairY);
 			// stairs.get(index).setDegree(getRandomInt(-45, 45));
@@ -215,7 +215,7 @@ public class GameSceneActivity extends Activity {
 		}
 
 		// add speed while game process
-		if (timeTotal % 10 == 1 && frameCount == 0) {
+		if (game.timeTotal % 10 == 1 && frameCount == 0) {
 			game.gameSpeed += 0.5;
 			physical.addGravity((float) 0.1);
 			for (int i = 0; i < stairs.size(); i++) {
@@ -317,7 +317,7 @@ public class GameSceneActivity extends Activity {
 					paint.setTextSize(30);
 					canvas.drawText("Floor: " + String.valueOf(game.userFloor),
 							5*density, 50*density, paint);
-					canvas.drawText("Time: " + String.valueOf(timeTotal) + "s",
+					canvas.drawText("Time: " + String.valueOf(game.timeTotal) + "s",
 							screenWidth - 150*density, 50*density, paint);
 					/*canvas.drawText("density: " + String.valueOf(density) ,
 							0, 100, paint);*/
