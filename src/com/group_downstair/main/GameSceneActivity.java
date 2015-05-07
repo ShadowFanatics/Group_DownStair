@@ -1,18 +1,23 @@
 package com.group_downstair.main;
 
 import java.io.Serializable;
+import java.sql.Date;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Random;
 
 import objects.AnimateObject;
 import objects.ItemObject;
 import objects.StairObject;
+import ranking.Ranking;
 import resource.Image;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.AlertDialog.Builder;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -23,8 +28,11 @@ import android.graphics.Paint;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.provider.Settings.System;
+import android.text.format.DateFormat;
 import android.util.DisplayMetrics;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.view.View;
@@ -353,13 +361,26 @@ public class GameSceneActivity extends Activity {
 		    public void handleMessage(Message msg) {
 		        switch (msg.what) {
 		        case 1:
+		        	final View v = LayoutInflater.from(GameSceneActivity.this).inflate(R.layout.rank_dialog, null);
 		        	new AlertDialog.Builder(GameSceneActivity.this)
-		    		.setTitle("請輸入你的名字")
+		    		.setTitle("遊戲結束!請輸入你的名字")
+		    		.setView(v)
 		    		.setPositiveButton("確定", new DialogInterface.OnClickListener() {
 		    			@Override
-		    			public void onClick(DialogInterface dialog, int which) {                               
-//		    				EditText editText = (EditText) (v.findViewById(R.id.edittext));
-//		    				Toast.makeText(getApplicationContext(), "你叫做" + editText.getText().toString(), Toast.LENGTH_SHORT).show();
+		    			public void onClick(DialogInterface dialog, int which) {
+		    				EditText editText = (EditText)(v.findViewById(R.id.rank_name));
+		    				Intent intent = new Intent();
+		    				intent.setClass(GameSceneActivity.this, Ranking.class);
+		    				Bundle bundle = new Bundle();
+		    				bundle.putInt("FLOOR", game.userFloor);
+		    				SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm");
+//		    				Date date = (Date) new java.util.Date();
+		    				Calendar cal = Calendar.getInstance();
+		    				bundle.putString("DATE", dateFormat.format(cal.getTime()));
+		    				bundle.putString("NAME", editText.getText().toString());
+		    				intent.putExtras(bundle);
+		    				startActivity(intent);
+		    				finish();
 		    			}
 		    		}).show();
 		        	break;
