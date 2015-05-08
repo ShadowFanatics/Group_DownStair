@@ -486,8 +486,8 @@ public class GameSceneActivity extends Activity {
 				file = new File(fileDir.getAbsolutePath() + "/" + filename);
 				writer = new BufferedWriter(new OutputStreamWriter(
 						new FileOutputStream(file, true), "UTF-8"));
-				Toast.makeText(GameSceneActivity.this, "FILE Path", Toast.LENGTH_SHORT)
-				.show();
+				//Toast.makeText(GameSceneActivity.this, "FILE Path", Toast.LENGTH_SHORT)
+				//.show();
 			} catch (Exception e) {
 				Toast.makeText(GameSceneActivity.this, file.getAbsolutePath().toString(),
 						Toast.LENGTH_LONG).show();
@@ -498,8 +498,8 @@ public class GameSceneActivity extends Activity {
 				writer.append(player_name);
 				writer.newLine();
 				writer.flush();
-				Toast.makeText(GameSceneActivity.this, "Saved", Toast.LENGTH_SHORT)
-						.show();
+				//Toast.makeText(GameSceneActivity.this, "Saved", Toast.LENGTH_SHORT)
+				//		.show();
 			} catch (Exception e2) {
 				// TODO: handle exception
 				Toast.makeText(GameSceneActivity.this, "Saving Failed",
