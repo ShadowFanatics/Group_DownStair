@@ -1,5 +1,10 @@
 package com.group_downstair.main;
 
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.OutputStreamWriter;
 import java.io.Serializable;
 import java.sql.Date;
 import java.text.SimpleDateFormat;
@@ -27,10 +32,10 @@ import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.graphics.Rect;
 import android.os.Bundle;
+import android.os.Environment;
 import android.os.Handler;
 import android.os.Message;
 import android.provider.Settings.System;
-import android.text.format.DateFormat;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -64,6 +69,9 @@ public class GameSceneActivity extends Activity {
 	private GameData game;
 	private Physical physical;
 	private Builder dialog;
+	private File fileDir;
+	private String player_name;
+	private int tsec;
 	
 	private final float deadLine = 85;
 	private boolean playRedEffect = false;
@@ -76,11 +84,12 @@ public class GameSceneActivity extends Activity {
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		Log.e("created", "created");
-
 		// �靘��撟之撠�
 		DisplayMetrics displayMetrics = new DisplayMetrics();
 		getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
-
+		
+		FindDirectoryPath();
+		
 		screenWidth = displayMetrics.widthPixels;
 		screenHeight = displayMetrics.heightPixels;
 
@@ -387,14 +396,17 @@ public class GameSceneActivity extends Activity {
 		    				EditText editText = (EditText)(v.findViewById(R.id.rank_name));
 		    				Intent intent = new Intent();
 		    				intent.setClass(GameSceneActivity.this, Ranking.class);
-		    				Bundle bundle = new Bundle();
-		    				bundle.putInt("FLOOR", game.userFloor);
-		    				SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm");
+		    				tsec = game.userFloor;
+		    				//Bundle bundle = new Bundle();
+		    				//bundle.putInt("FLOOR", game.userFloor);
+		    				//SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm");
 //		    				Date date = (Date) new java.util.Date();
-		    				Calendar cal = Calendar.getInstance();
-		    				bundle.putString("DATE", dateFormat.format(cal.getTime()));
-		    				bundle.putString("NAME", editText.getText().toString());
-		    				intent.putExtras(bundle);
+		    				//Calendar cal = Calendar.getInstance();
+		    				//bundle.putString("DATE", dateFormat.format(cal.getTime()));
+		    				//bundle.putString("NAME", editText.getText().toString());
+		    				//intent.putExtras(bundle);
+		    				player_name = editText.getText().toString();
+		    				writeRecord("record.txt");
 		    				startActivity(intent);
 		    				finish();
 		    			}
@@ -435,4 +447,73 @@ public class GameSceneActivity extends Activity {
 		Random r = new Random();
 		return r.nextInt(max - min + 1) + min;
 	}
+	
+	private boolean FindDirectoryPath() {
+		if (Environment.getExternalStorageState().equals(
+				Environment.MEDIA_REMOVED)) {
+			Toast.makeText(GameSceneActivity.this, "沒有SDDDD", Toast.LENGTH_SHORT)
+					.show();
+			return false;
+		} else {
+			fileDir = new File(Environment.getExternalStorageDirectory()
+					.getPath() + "/DownStair/");
+
+			if (!fileDir.exists())
+				fileDir.mkdirs();
+			//Toast.makeText(GameSceneActivity.this, "FIlE directory", Toast.LENGTH_SHORT)
+			//.show();
+			return true;
+		}
+	}
+    
+    private void writeRecord(String filename){
+    	if(FindDirectoryPath()){
+    		BufferedWriter writer = null;
+			File file = null;
+			//Scanner reader = null;
+			
+			//抓時間日期
+			//SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm");
+
+			//Date curDate = new Date(System.currentTimeMillis());
+			//String str = formatter.format(curDate);
+
+			SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm");
+//			Date date = (Date) new java.util.Date();
+			Calendar cal = Calendar.getInstance();
+			
+			try {
+				file = new File(fileDir.getAbsolutePath() + "/" + filename);
+				writer = new BufferedWriter(new OutputStreamWriter(
+						new FileOutputStream(file, true), "UTF-8"));
+				Toast.makeText(GameSceneActivity.this, "FILE Path", Toast.LENGTH_SHORT)
+				.show();
+			} catch (Exception e) {
+				// TODO: handle exception
+				Toast.makeText(GameSceneActivity.this, file.getAbsolutePath().toString(),
+						Toast.LENGTH_LONG).show();
+			try {
+				writer.append(String.valueOf(tsec) + ",");
+				writer.append(dateFormat.format(cal.getTime()) + ",");
+				writer.append(player_name);
+				writer.newLine();
+				writer.flush();
+				Toast.makeText(GameSceneActivity.this, "Saved", Toast.LENGTH_SHORT)
+						.show();
+			} catch (Exception e2) {
+				// TODO: handle exception
+				Toast.makeText(GameSceneActivity.this, "Saving Failed",
+						Toast.LENGTH_SHORT).show();
+			} finally {
+				if (writer != null) {
+					try {
+						writer.close();
+					} catch (IOException e3) {
+						e3.printStackTrace();
+					}
+				}
+			}
+    		}
+    	}
+    }  
 }

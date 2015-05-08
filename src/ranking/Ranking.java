@@ -55,7 +55,7 @@ public class Ranking extends Activity{
 	        setContentView(R.layout.activity_rank);
 	        
 	        initData();
-	        addData();
+	        //addData();
 	        //list sort
 	        Collections.sort(mListlist,new Comparator<RankData>() {
 	        	
@@ -126,7 +126,6 @@ public class Ranking extends Activity{
 			mListlist.add(new RankData("37","2015-05-07 02:37","岳霖"));
 			mListlist.add(new RankData("7","2015-05-07 03:67","熊貓"));
 			mListlist.add(new RankData("11","2015-05-07 04:18","魚蛋"));
-			
 			//readState(FileName);
 			
 			DisplayMetrics displayMetrics = new DisplayMetrics();
