@@ -121,12 +121,14 @@ public class Ranking extends Activity{
 	    private void initData() {
 	        lv = new ListView(this); 
 	        mListlist = new ArrayList<RankData>();
-			mListlist.add(new RankData("30","2012-12-12 00:30", "lin"));
-			mListlist.add(new RankData("25","2012-12-12 00:25","Chou"));
-			mListlist.add(new RankData("37","2012-12-12 00:37","xia"));
-			mListlist.add(new RankData("67","2012-12-12 00:67","tsu"));
-			mListlist.add(new RankData("11","2012-12-12 00:18","hi"));
+
+			mListlist.add(new RankData("30","2015-05-07 00:30", "硬硬"));
+			mListlist.add(new RankData("25","2015-05-07 01:25","邦弟"));
+			mListlist.add(new RankData("37","2015-05-07 02:37","岳霖"));
+			mListlist.add(new RankData("7","2015-05-07 03:67","熊貓"));
+			mListlist.add(new RankData("11","2015-05-07 04:18","魚蛋"));
 			readState(FileName);
+
 			
 			DisplayMetrics displayMetrics = new DisplayMetrics();
 			getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
@@ -141,7 +143,10 @@ public class Ranking extends Activity{
 			String date = bundle.getString("DATE");
 			String name = bundle.getString("NAME");
 			RankData newData = new RankData(String.valueOf(tsec), date, name);
-			mListlist.add(newData);
+			
+			if (tsec!=0) {
+				mListlist.add(newData);
+			}
 		}
 	    
 		private void readState(String filename) {

@@ -23,13 +23,13 @@
             android:id="@+id/bigtv"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textSize="35sp" />
+            android:textSize="20sp" />
 
         <TextView
             android:id="@+id/smalltv"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textSize="20sp" />
+            android:textSize="14sp" />
 
 
         
@@ -43,7 +43,7 @@
             android:id="@+id/timertv"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textSize="50sp" />
+            android:textSize="25sp" />
 	</LinearLayout>
     <!--
     <Button

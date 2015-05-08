@@ -190,7 +190,7 @@ public class GameSceneActivity extends Activity {
 			game.timeTotal++;
 		}
 		// generate item
-		if (game.timeTotal % 20 == 1 && frameCount == 0) {
+		if (game.timeTotal % 5 == 1 && frameCount == 0) {
 			ItemObject tempItem = new ItemObject(res, Image.itemLife,
 					getRandomInt(0, screenWidth), screenHeight, 1);
 			tempItem.addSpeedY(-game.gameSpeed);
@@ -236,7 +236,7 @@ public class GameSceneActivity extends Activity {
 		}
 
 		// add speed while game process
-		if (game.timeTotal % 10 == 1 && frameCount == 0) {
+		if (game.timeTotal % 5 == 1 && frameCount == 0) {
 			game.gameSpeed += 0.5;
 			physical.addGravity((float) 0.1);
 			for (int i = 0; i < stairs.size(); i++) {
