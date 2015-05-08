@@ -11,6 +11,11 @@
     <string name="choice_continue">繼續遊戲</string>
     <string name="choice_rank">排行榜</string>
     <string name="choice_exit">離開遊戲</string>
+    <string name="choice_info">說明</string>
     
     <string name="ranking_title">排行榜</string>
+    <string name="info_title">說明</string>
+    
+    <string name="author1">陳映亦、林岳霖、戴邦地、李冠勳、余達明</string>
+    <string name="author2">數位隨身裝置程式設計-小組作業</string>
 </resources>

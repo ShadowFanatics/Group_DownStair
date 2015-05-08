@@ -10,96 +10,104 @@
     android:paddingTop="@dimen/activity_vertical_margin"
     tools:context="com.group_downstair.main.MainActivity" >
 
-     <RelativeLayout
+    <RelativeLayout
         android:layout_width="fill_parent"
         android:layout_height="fill_parent"
         android:layout_weight="90" >
-    
     </RelativeLayout>
-    
-    
-     <RelativeLayout
+
+    <RelativeLayout
         android:layout_width="fill_parent"
         android:layout_height="fill_parent"
         android:layout_weight="60" >
 
-         <LinearLayout
-             android:layout_width="fill_parent"
-             android:layout_height="fill_parent"
-             android:orientation="horizontal">
+        <LinearLayout
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"
+            android:orientation="horizontal" >
 
-             <LinearLayout
-                 android:layout_width="fill_parent"
-                 android:layout_height="fill_parent"
-                 android:layout_weight="1" >
-             </LinearLayout>
+            <LinearLayout
+                android:layout_width="fill_parent"
+                android:layout_height="fill_parent"
+                android:layout_weight="1" >
+            </LinearLayout>
 
-             <LinearLayout
-                 android:layout_width="fill_parent"
-                 android:layout_height="fill_parent"
-                 android:orientation="vertical"
-                 android:layout_weight="1" >
+            <LinearLayout
+                android:layout_width="fill_parent"
+                android:layout_height="fill_parent"
+                android:layout_weight="1"
+                android:orientation="vertical" >
 
-                 <LinearLayout
-                     android:layout_width="match_parent"
-                     android:layout_height="match_parent"
-                     android:layout_weight="1" >
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1" >
 
-                     <Button
-                         android:id="@+id/button_start"
-                         android:layout_width="match_parent"
-                         android:layout_height="wrap_content"
-                         android:layout_marginBottom="10dp"
-                         android:text="@string/choice_start" />
-                 </LinearLayout>
+                    <Button
+                        android:id="@+id/button_start"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="10dp"
+                        android:text="@string/choice_start" />
+                </LinearLayout>
 
-                 <LinearLayout
-                     android:layout_width="match_parent"
-                     android:layout_height="match_parent"
-                     android:layout_weight="1" >
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1" >
 
-                     <Button
-                         android:id="@+id/button_continue"
-                         android:layout_width="match_parent"
-                         android:layout_height="wrap_content"
-                         android:layout_marginBottom="10dp"
-                         android:text="@string/choice_continue" />
-                 </LinearLayout>
+                    <Button
+                        android:id="@+id/button_continue"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="10dp"
+                        android:text="@string/choice_continue" />
+                </LinearLayout>
 
-                 <LinearLayout
-                     android:layout_width="match_parent"
-                     android:layout_height="match_parent"
-                     android:layout_weight="1" >
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1" >
 
-                     <Button
-                         android:id="@+id/button_rank"
-                         android:layout_width="match_parent"
-                         android:layout_height="wrap_content"
-                         android:layout_marginBottom="10dp"
-                         android:text="@string/choice_rank" />
-                 </LinearLayout>
+                    <Button
+                        android:id="@+id/button_rank"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="10dp"
+                        android:text="@string/choice_rank" />
+                </LinearLayout>
 
-                 <LinearLayout
-                     android:layout_width="match_parent"
-                     android:layout_height="match_parent"
-                     android:layout_weight="1" >
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1" >
 
-                     <Button
-                         android:id="@+id/button_exit"
-                         android:layout_width="match_parent"
-                         android:layout_height="wrap_content"
-                         android:text="@string/choice_exit" />
-                 </LinearLayout>
-             </LinearLayout>
+                    <Button
+                        android:id="@+id/button_Info"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="@string/choice_info" />
+                </LinearLayout>
 
-             <LinearLayout
-                 android:layout_width="fill_parent"
-                 android:layout_height="fill_parent"
-                 android:layout_weight="1" >
-             </LinearLayout>
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1" >
 
-         </LinearLayout>
-         
+                    <Button
+                        android:id="@+id/button_exit"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="@string/choice_exit" />
+                </LinearLayout>
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="fill_parent"
+                android:layout_height="fill_parent"
+                android:layout_weight="1" >
+            </LinearLayout>
+        </LinearLayout>
     </RelativeLayout>
 
 </LinearLayout>

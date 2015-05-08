@@ -6,12 +6,16 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Scanner;
 
+import sqlite.postDataDAO;
+
 import com.group_downstair.main.MainActivity;
 import com.group_downstair.main.R;
+
 
 import android.app.Activity;
 import android.content.Context;
@@ -19,6 +23,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.os.Environment;
 import android.util.DisplayMetrics;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -44,9 +49,7 @@ public class Ranking extends Activity{
 			R.drawable.crown};
 		private static int cup[] = {R.drawable.gold, R.drawable.silver, R.drawable.bronze};
 		private int display_width, display_height;
-		private static final String FileName = "record.txt";
-		File fileDir;
-		
+		private long index = 0;
 		private static final String TAG = "Ranking_activity";
 	    /** Called when the activity is first created. */  
 	    @Override  
@@ -55,7 +58,7 @@ public class Ranking extends Activity{
 	        setContentView(R.layout.activity_rank);
 	        
 	        initData();
-	        //addData();
+	        addData();
 	        //list sort
 	        Collections.sort(mListlist,new Comparator<RankData>() {
 	        	
@@ -64,8 +67,8 @@ public class Ranking extends Activity{
 					// TODO Auto-generated method stub
 					//Date date1 = stringToDate(lhs.getTSec());
 					//Date date2 = stringToDate(rhs.getTSec());
-					int n1 = Integer.parseInt(lhs.getTSec());
-					int n2 = Integer.parseInt(rhs.getTSec());
+					int n1 = Integer.parseInt(lhs.getScore());
+					int n2 = Integer.parseInt(rhs.getScore());
 					//由大排到小
 					if(n1 < n2){
 						return 1;
@@ -122,14 +125,13 @@ public class Ranking extends Activity{
 	        lv = new ListView(this); 
 	        mListlist = new ArrayList<RankData>();
 
-			mListlist.add(new RankData("30","2015-05-07 00:30", "硬硬"));
+			/*mListlist.add(new RankData("30","2015-05-07 00:30", "硬硬"));
 			mListlist.add(new RankData("25","2015-05-07 01:25","邦弟"));
 			mListlist.add(new RankData("37","2015-05-07 02:37","岳霖"));
 			mListlist.add(new RankData("7","2015-05-07 03:67","熊貓"));
-			mListlist.add(new RankData("11","2015-05-07 04:18","魚蛋"));
-			readState(FileName);
+			mListlist.add(new RankData("11","2015-05-07 04:18","魚蛋"));*/
+			readState();
 
-			
 			DisplayMetrics displayMetrics = new DisplayMetrics();
 			getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
 			display_width = displayMetrics.widthPixels;
@@ -139,41 +141,33 @@ public class Ranking extends Activity{
 	    
 	    private void addData() {
 			Bundle bundle = getIntent().getExtras();
-			int tsec = bundle.getInt("FLOOR");
-			String date = bundle.getString("DATE");
-			String name = bundle.getString("NAME");
-			RankData newData = new RankData(String.valueOf(tsec), date, name);
-			
-			if (tsec!=0) {
+			if ( bundle.getBoolean("save")) {
+				String score = bundle.getString("score");
+				String date = bundle.getString("time");
+				String name = bundle.getString("name");
+				RankData newData = new RankData(index,score, date, name);
 				mListlist.add(newData);
+				postDataDAO localData = new postDataDAO(getApplicationContext());
+				localData.insert(newData);
+				localData.close();
+				index++;
 			}
 		}
 	    
-		private void readState(String filename) {
-			File file = null;
-			Scanner reader = null;
-					
-			try {
-				file = new File(Environment.getExternalStorageDirectory().getPath() + "/DownStair/" + filename);
-				reader = new Scanner(file);
-				
-				String tmp;
-				while (reader.hasNextLine() == true) {
-					tmp = reader.nextLine();
-					String[] split = tmp.split(",");
-					mListlist.add(new RankData(split[0],split[1],split[2]));
-				}
-				Toast.makeText(Ranking.this, "Loaded", Toast.LENGTH_SHORT).show();
-
-			} catch (FileNotFoundException e) {
-				Toast.makeText(Ranking.this, "Can not find file",
-						Toast.LENGTH_SHORT).show();
-			} catch (IOException e) {
-				Toast.makeText(Ranking.this, "Loading Failed",
-						Toast.LENGTH_SHORT).show();
-			} finally {
-				reader.close();
+		private void readState() {
+			postDataDAO localData = new postDataDAO(getApplicationContext());
+			List<RankData> messages = localData.getAll();
+			index = messages.size();
+			for (int i = 0; i < messages.size(); i++) {
+				Log.e("!!",String.valueOf(i));
+				long id =  messages.get(i).id;
+				String name =  messages.get(i).getName();
+				String date =  messages.get(i).getDate();
+				String score =  messages.get(i).getScore();
+				RankData item = new RankData(id,score, date, name);
+				mListlist.add(item);
 			}
+			localData.close();
 		}
 	    
 	    /*
@@ -239,7 +233,7 @@ public class Ranking extends Activity{
 	            holder.imageview2.setImageDrawable(mList.get(position).getIcon2());
 	            holder.textView1.setText(mList.get(position).getDate());  
 	            holder.textVeiw2.setText(mList.get(position).getName());
-	            holder.timerView.setText(mList.get(position).getTSec() + "層");
+	            holder.timerView.setText(mList.get(position).getScore() + "層");
 	            
 	            holder.imageview1.getLayoutParams().height = display_height / 9;
 	            holder.imageview1.getLayoutParams().width = display_width / 9;

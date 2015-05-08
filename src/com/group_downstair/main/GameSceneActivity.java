@@ -83,12 +83,10 @@ public class GameSceneActivity extends Activity {
 	
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		Log.e("created", "created");
 		// �靘��撟之撠�
 		DisplayMetrics displayMetrics = new DisplayMetrics();
 		getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
 		
-		FindDirectoryPath();
 		
 		screenWidth = displayMetrics.widthPixels;
 		screenHeight = displayMetrics.heightPixels;
@@ -124,6 +122,7 @@ public class GameSceneActivity extends Activity {
 	}
 
 	public void gameRun() {
+		player.animate();
 		player.setSpeedX(-mySensor.getForceX());
 		if (player.getY() < 100*density) {
 			if (game.life > 0) {
@@ -196,7 +195,7 @@ public class GameSceneActivity extends Activity {
 			tempItem.addSpeedY(-game.gameSpeed*density);
 			items.add(tempItem);
 		}
-		if (game.timeTotal % 10 == 1 && frameCount == 0) {
+		if (game.timeTotal % 3 == 1 && frameCount == 0) {
 			ItemObject tempItem = new ItemObject(res, Image.itemBomb,
 					getRandomInt(0, screenWidth), screenHeight, 2);
 			tempItem.addSpeedY(-game.gameSpeed*density);
@@ -206,6 +205,7 @@ public class GameSceneActivity extends Activity {
 		// item move collide eat
 		for (int i = 0; i < items.size(); i++) {
 			ItemObject tempItem = items.get(i);
+			tempItem.animate();
 			tempItem.move(tempItem.getSpeedX(), tempItem.getSpeedY());
 			if (physical.isCollide(tempItem, player)) {
 				eatItem(tempItem.getType());
@@ -237,7 +237,7 @@ public class GameSceneActivity extends Activity {
 
 		// add speed while game process
 		if (game.timeTotal % 5 == 1 && frameCount == 0) {
-			game.gameSpeed += 0.5;
+			game.gameSpeed += 1;
 			physical.addGravity((float) 0.1);
 			for (int i = 0; i < stairs.size(); i++) {
 				stairs.get(i).setSpeedY(-game.gameSpeed);
@@ -397,16 +397,16 @@ public class GameSceneActivity extends Activity {
 		    				Intent intent = new Intent();
 		    				intent.setClass(GameSceneActivity.this, Ranking.class);
 		    				tsec = game.userFloor;
-		    				//Bundle bundle = new Bundle();
-		    				//bundle.putInt("FLOOR", game.userFloor);
-		    				//SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm");
-//		    				Date date = (Date) new java.util.Date();
-		    				//Calendar cal = Calendar.getInstance();
-		    				//bundle.putString("DATE", dateFormat.format(cal.getTime()));
-		    				//bundle.putString("NAME", editText.getText().toString());
-		    				//intent.putExtras(bundle);
 		    				player_name = editText.getText().toString();
-		    				writeRecord("record.txt");
+		    				SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm");
+		    				Calendar cal = Calendar.getInstance();
+		    				String time = dateFormat.format(cal.getTime());
+		    				Bundle bundle = new Bundle();
+		    				bundle.putBoolean("save", true);
+		    				bundle.putString("name", player_name);
+		    				bundle.putString("time", time);
+		    				bundle.putString("score", String.valueOf(tsec));
+		    				intent.putExtras(bundle);
 		    				startActivity(intent);
 		    				finish();
 		    			}
@@ -447,72 +447,5 @@ public class GameSceneActivity extends Activity {
 		Random r = new Random();
 		return r.nextInt(max - min + 1) + min;
 	}
-	
-	private boolean FindDirectoryPath() {
-		if (Environment.getExternalStorageState().equals(
-				Environment.MEDIA_REMOVED)) {
-			Toast.makeText(GameSceneActivity.this, "沒有SDDDD", Toast.LENGTH_SHORT)
-					.show();
-			return false;
-		} else {
-			fileDir = new File(Environment.getExternalStorageDirectory()
-					.getPath() + "/DownStair/");
-
-			if (!fileDir.exists())
-				fileDir.mkdirs();
-			//Toast.makeText(GameSceneActivity.this, "FIlE directory", Toast.LENGTH_SHORT)
-			//.show();
-			return true;
-		}
-	}
-    
-    private void writeRecord(String filename){
-    	if(FindDirectoryPath()){
-    		BufferedWriter writer = null;
-			File file = null;
-			//Scanner reader = null;
-			
-			//抓時間日期
-			//SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm");
-
-			//Date curDate = new Date(System.currentTimeMillis());
-			//String str = formatter.format(curDate);
-
-			SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm");
-//			Date date = (Date) new java.util.Date();
-			Calendar cal = Calendar.getInstance();
-			
-			try {
-				file = new File(fileDir.getAbsolutePath() + "/" + filename);
-				writer = new BufferedWriter(new OutputStreamWriter(
-						new FileOutputStream(file, true), "UTF-8"));
-				Toast.makeText(GameSceneActivity.this, "FILE Path", Toast.LENGTH_SHORT)
-				.show();
-			} catch (Exception e) {
-				Toast.makeText(GameSceneActivity.this, file.getAbsolutePath().toString(),
-						Toast.LENGTH_LONG).show();
-    		}
-			try {
-				writer.append(String.valueOf(tsec) + ",");
-				writer.append(dateFormat.format(cal.getTime()) + ",");
-				writer.append(player_name);
-				writer.newLine();
-				writer.flush();
-				Toast.makeText(GameSceneActivity.this, "Saved", Toast.LENGTH_SHORT)
-						.show();
-			} catch (Exception e2) {
-				// TODO: handle exception
-				Toast.makeText(GameSceneActivity.this, "Saving Failed",
-						Toast.LENGTH_SHORT).show();
-			} finally {
-				if (writer != null) {
-					try {
-						writer.close();
-					} catch (IOException e3) {
-						e3.printStackTrace();
-					}
-				}
-			}
-    	}
-    }  
+     
 }

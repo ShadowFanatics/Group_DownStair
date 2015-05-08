@@ -7,7 +7,7 @@ import objects.*;
 
 public class Physical {
 	private float gravity = (float) 0.9;
-	private final float reflect = (float) 0.7;
+	private final float reflect = (float) 0.8;
 	private ArrayList<AnimateObject> objects;
 	private float density;
 	public Physical(float d) {

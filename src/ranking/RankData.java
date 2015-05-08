@@ -3,8 +3,9 @@ package ranking;
 import android.graphics.drawable.Drawable;
 
 public class RankData {
+	public long id = 0;
 	private String name;
-	private String tsec;
+	private String score;
 	private String date;
 	//private String time_string;
 	private Drawable icon1;
@@ -14,8 +15,8 @@ public class RankData {
 		return name;
 	}
 	
-	public String getTSec() {
-		return tsec;
+	public String getScore() {
+		return score;
 	}
 	
 	public String getDate() {
@@ -38,8 +39,9 @@ public class RankData {
         this.icon2 = icon;
     }
 	
-	public RankData(String tsec,String date, String name) {
-		this.tsec = tsec;
+	public RankData(long id, String score,String date, String name) {
+		this.id = id;
+		this.score = score;
 		this.date = date;
 		this.name = name;
 	}

@@ -20,6 +20,7 @@ public class MainActivity extends Activity {
 	private Button continueButton;
 	private Button rankButton;
 	private Button exitButton;
+	private Button infoButton;
 	private LinearLayout layout;
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -40,6 +41,8 @@ public class MainActivity extends Activity {
 		rankButton.setOnClickListener(rankButtonListener);
 		exitButton = (Button) findViewById(R.id.button_exit);
 		exitButton.setOnClickListener(exitButtonListener);
+		infoButton = (Button) findViewById(R.id.button_Info);
+		infoButton.setOnClickListener(infoButtonListener);
 		
 		
 		layout = (LinearLayout)findViewById(R.id.MainActivity_layout);
@@ -84,12 +87,24 @@ public class MainActivity extends Activity {
 		public void onClick(View v)
 		{	
 			Bundle bundle = new Bundle();
-			bundle.putBoolean("isStart", false);
+			bundle.putBoolean("save", false);
 			Intent intent = new Intent();
 			intent.putExtras(bundle);
 			intent.setClass(MainActivity.this, ranking.Ranking.class);
 			startActivityForResult(intent, RANK_REQUEST);
 			MainActivity.this.finish();
+			
+		}
+	};
+	
+	private Button.OnClickListener infoButtonListener = new Button.OnClickListener()
+	{
+
+		public void onClick(View v)
+		{	
+			Intent intent = new Intent();
+			intent.setClass(MainActivity.this, InfoActivity.class);
+			startActivity(intent);
 			
 		}
 	};

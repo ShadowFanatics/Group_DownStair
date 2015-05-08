@@ -36,6 +36,11 @@
             android:label="@string/ranking_title"
             android:screenOrientation="portrait" >
         </activity>
+        <activity
+            android:name=".InfoActivity"
+            android:label="@string/info_title"
+            android:screenOrientation="portrait" >
+        </activity>
     </application>
 
 </manifest>
