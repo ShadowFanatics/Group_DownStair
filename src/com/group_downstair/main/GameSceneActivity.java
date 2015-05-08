@@ -100,7 +100,7 @@ public class GameSceneActivity extends Activity {
 			restorePrefs();
 		}
 
-		physical = new Physical();
+		physical = new Physical(density);
 		myPanel = new Panel(this);
 		setContentView(myPanel);
 
@@ -193,13 +193,13 @@ public class GameSceneActivity extends Activity {
 		if (game.timeTotal % 5 == 1 && frameCount == 0) {
 			ItemObject tempItem = new ItemObject(res, Image.itemLife,
 					getRandomInt(0, screenWidth), screenHeight, 1);
-			tempItem.addSpeedY(-game.gameSpeed);
+			tempItem.addSpeedY(-game.gameSpeed*density);
 			items.add(tempItem);
 		}
 		if (game.timeTotal % 10 == 1 && frameCount == 0) {
 			ItemObject tempItem = new ItemObject(res, Image.itemBomb,
 					getRandomInt(0, screenWidth), screenHeight, 2);
-			tempItem.addSpeedY(-game.gameSpeed);
+			tempItem.addSpeedY(-game.gameSpeed*density);
 			items.add(tempItem);
 		}
 

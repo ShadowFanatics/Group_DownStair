@@ -9,8 +9,10 @@ public class Physical {
 	private float gravity = (float) 0.9;
 	private final float reflect = (float) 0.7;
 	private ArrayList<AnimateObject> objects;
-	public Physical() {
+	private float density;
+	public Physical(float d) {
 		objects = new ArrayList<AnimateObject>();
+		density = d;
 	}
 	public int runObjects2() {
 		int floor = -1;
@@ -21,16 +23,16 @@ public class Physical {
 					temp.addSpeedY(gravity);
 				}
 			}
-			temp.move(temp.getSpeedX(), temp.getSpeedY());
+			temp.move(temp.getSpeedX()*density, temp.getSpeedY()*density);
 		}
 		AnimateObject player = objects.get(0);
 		for (int i = 1; i < objects.size(); i++) {
 			AnimateObject temp = objects.get(i);
 			if ( isCollide(temp, player) ) {
-				player.move(0-player.getSpeedX(), 0-player.getSpeedY());
+				player.move(0-player.getSpeedX(), 0-player.getSpeedY()*density);
 				player.addSpeedY(0-gravity);
 				player.setSpeedY((float) (0-player.getSpeedY())*reflect);
-				player.move(player.getSpeedX(), player.getSpeedY()+temp.getSpeedY());
+				player.move(player.getSpeedX()*density, (player.getSpeedY()+temp.getSpeedY())*density);
 				floor = ((StairObject)temp).getFloor();
 			}
 		}
