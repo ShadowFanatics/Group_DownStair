@@ -55,6 +55,7 @@ public class Ranking extends Activity{
 	        setContentView(R.layout.activity_rank);
 	        
 	        initData();
+	        addData();
 	        //list sort
 	        Collections.sort(mListlist,new Comparator<RankData>() {
 	        	
@@ -124,7 +125,7 @@ public class Ranking extends Activity{
 			mListlist.add(new RankData("25","2012-12-12 00:25","Chou"));
 			mListlist.add(new RankData("37","2012-12-12 00:37","xia"));
 			mListlist.add(new RankData("67","2012-12-12 00:67","tsu"));
-			mListlist.add(new RankData("18","2012-12-12 00:18","hi"));
+			mListlist.add(new RankData("11","2012-12-12 00:18","hi"));
 			
 			//readState(FileName);
 			
@@ -135,6 +136,14 @@ public class Ranking extends Activity{
 			//Toast.makeText(Ranking.this, display_width + ":width" + display_height + "height", Toast.LENGTH_LONG).show();;
 		}
 	    
+	    private void addData() {
+			Bundle bundle = getIntent().getExtras();
+			int tsec = bundle.getInt("FLOOR");
+			String date = bundle.getString("DATE");
+			String name = bundle.getString("NAME");
+			RankData newData = new RankData(String.valueOf(tsec), date, name);
+			mListlist.add(newData);
+		}
 	    
 		private void readState(String filename) {
 			File file = null;
@@ -226,7 +235,7 @@ public class Ranking extends Activity{
 	            holder.imageview2.setImageDrawable(mList.get(position).getIcon2());
 	            holder.textView1.setText(mList.get(position).getDate());  
 	            holder.textVeiw2.setText(mList.get(position).getName());
-	            holder.timerView.setText("記錄：" + mList.get(position).getTSec() + "層");
+	            holder.timerView.setText(mList.get(position).getTSec() + "層");
 	            
 	            holder.imageview1.getLayoutParams().height = display_height / 9;
 	            holder.imageview1.getLayoutParams().width = display_width / 9;
