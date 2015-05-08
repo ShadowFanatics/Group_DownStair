@@ -126,7 +126,7 @@ public class Ranking extends Activity{
 			mListlist.add(new RankData("37","2012-12-12 00:37","xia"));
 			mListlist.add(new RankData("67","2012-12-12 00:67","tsu"));
 			mListlist.add(new RankData("11","2012-12-12 00:18","hi"));
-			//readState(FileName);
+			readState(FileName);
 			
 			DisplayMetrics displayMetrics = new DisplayMetrics();
 			getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);

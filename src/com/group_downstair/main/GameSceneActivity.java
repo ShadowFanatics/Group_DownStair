@@ -489,9 +489,9 @@ public class GameSceneActivity extends Activity {
 				Toast.makeText(GameSceneActivity.this, "FILE Path", Toast.LENGTH_SHORT)
 				.show();
 			} catch (Exception e) {
-				// TODO: handle exception
 				Toast.makeText(GameSceneActivity.this, file.getAbsolutePath().toString(),
 						Toast.LENGTH_LONG).show();
+    		}
 			try {
 				writer.append(String.valueOf(tsec) + ",");
 				writer.append(dateFormat.format(cal.getTime()) + ",");
@@ -513,7 +513,6 @@ public class GameSceneActivity extends Activity {
 					}
 				}
 			}
-    		}
     	}
     }  
 }
