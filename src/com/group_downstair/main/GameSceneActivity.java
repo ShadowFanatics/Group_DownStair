@@ -122,10 +122,12 @@ public class GameSceneActivity extends Activity {
 	}
 
 	public void gameRun() {
+		boolean ishurt = false;
 		player.animate();
 		player.setSpeedX(-mySensor.getForceX());
-		if (player.getY() < 100*density) {
+		if (player.getY() < 100) {
 			if (game.life > 0) {
+				ishurt = true;
 				snakes.remove(snakes.size() - 1);
 				game.life--;
 				player.setLocation(player.getX(), 150*density);
@@ -172,7 +174,7 @@ public class GameSceneActivity extends Activity {
 				snakes.get(i).setMatrix(temp);
 				snakes.get(i).move(0,
 						(0 - snakeDelayFrame * (i + 1)) * game.gameSpeed);
-				if (snakes.get(i).getY() < deadLine) {
+				if (snakes.get(i).getY() < deadLine && !ishurt) {
 					snakes.remove(i);
 					game.life--;
 					playRedEffect = true;
