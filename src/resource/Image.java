@@ -6,7 +6,7 @@ public final class Image {
 	public static int player = R.drawable.ic_launcher;
 	public static int snakeHead = R.drawable.snake_head;
 	public static int snakeBody = R.drawable.snake_body;
-	public static int stair = R.drawable.normal_stair;
+	public static int stair = R.drawable.stair;
 	public static int gameBackground = R.drawable.game_back;
 	public static int itemLife = R.drawable.item_life;
 	public static int itemBomb = R.drawable.item_bomb;
